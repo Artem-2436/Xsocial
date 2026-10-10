@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xsocial v2.0 - Мессенджер</title>
+    <title>Xsocial v3.0 - Мессенджер</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
@@ -158,7 +158,6 @@
 
         .hamburger-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
         .hamburger-icon {
@@ -279,7 +278,6 @@
             background: rgba(255, 255, 255, 0.8);
             border-color: rgba(0, 0, 0, 0.2);
             transform: translateX(5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
 
         .room-item.active {
@@ -320,7 +318,6 @@
             background: rgba(0, 0, 0, 0.9);
             color: #fff;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
 
         .add-user-btn .plus-icon {
@@ -450,7 +447,6 @@
             outline: none;
             border-color: #000;
             background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
 
         .send-btn {
@@ -486,10 +482,6 @@
             border-radius: 10px;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
-        }
-
         /* Анимации */
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -507,11 +499,7 @@
             }
         }
 
-        /* ============================================ */
-        /* АДАПТИВНОСТЬ */
-        /* ============================================ */
-
-        /* Планшеты (768px - 1024px) */
+        /* Адаптивность */
         @media (max-width: 1024px) {
             .container {
                 padding: 15px;
@@ -522,21 +510,8 @@
                 width: 280px;
                 padding: 20px;
             }
-
-            .chat-panel {
-                padding: 20px;
-            }
-
-            .profile-section {
-                padding: 15px;
-            }
-
-            .room-item {
-                padding: 15px;
-            }
         }
 
-        /* Мобильные устройства (до 768px) */
         @media (max-width: 768px) {
             body {
                 overflow: visible;
@@ -549,12 +524,10 @@
                 height: 100vh;
             }
 
-            /* Показываем гамбургер */
             .hamburger-btn {
                 display: block;
             }
 
-            /* Sidebar становится выдвижным */
             .sidebar {
                 position: fixed;
                 top: 0;
@@ -565,7 +538,6 @@
                 z-index: 100;
                 border-radius: 0 25px 25px 0;
                 transform: translateX(-100%);
-                transition: transform 0.3s ease;
                 overflow-y: auto;
             }
 
@@ -573,7 +545,6 @@
                 transform: translateX(0);
             }
 
-            /* Скрываем некоторые элементы на мобильных */
             .profile-section p {
                 display: none;
             }
@@ -586,146 +557,21 @@
                 display: none;
             }
 
-            .add-user-btn {
-                justify-content: center;
-                padding: 12px;
-            }
-
-            /* Chat panel на весь экран */
             .chat-panel {
                 flex: 1;
                 padding: 15px;
-                border-radius: 20px;
-            }
-
-            .chat-header {
-                padding: 12px 15px;
-                margin-bottom: 15px;
-            }
-
-            .chat-header h2 {
-                font-size: 1.2rem;
-            }
-
-            .messages-container {
-                padding: 10px;
-                margin-bottom: 15px;
             }
 
             .message-bubble {
                 max-width: 85%;
-                padding: 12px 15px;
             }
 
             .input-container {
                 padding: 12px;
-                gap: 8px;
-            }
-
-            .input-container input {
-                padding: 12px 15px;
-                font-size: 0.95rem;
             }
 
             .send-btn {
                 padding: 12px 20px;
-                font-size: 0.95rem;
-            }
-
-            /* Auth modal */
-            .auth-box {
-                padding: 30px 20px;
-            }
-
-            .auth-box h1 {
-                font-size: 1.8rem;
-            }
-
-            .auth-box p {
-                font-size: 1rem;
-            }
-
-            .auth-box input {
-                padding: 12px;
-                font-size: 0.95rem;
-            }
-
-            .auth-box button {
-                padding: 12px;
-                font-size: 1rem;
-            }
-        }
-
-        /* Маленькие мобильные (до 480px) */
-        @media (max-width: 480px) {
-            .container {
-                padding: 8px;
-            }
-
-            .chat-panel {
-                padding: 12px;
-                border-radius: 15px;
-            }
-
-            .chat-header {
-                padding: 10px 12px;
-                border-radius: 12px;
-            }
-
-            .chat-header h2 {
-                font-size: 1.1rem;
-            }
-
-            .message-bubble {
-                max-width: 90%;
-                padding: 10px 12px;
-                border-radius: 12px;
-            }
-
-            .message-sender {
-                font-size: 0.8rem;
-            }
-
-            .message-text {
-                font-size: 0.95rem;
-            }
-
-            .input-container {
-                padding: 10px;
-                border-radius: 12px;
-            }
-
-            .input-container input {
-                padding: 10px 12px;
-                font-size: 0.9rem;
-            }
-
-            .send-btn {
-                padding: 10px 15px;
-                font-size: 0.9rem;
-            }
-
-            .hamburger-btn {
-                padding: 8px 10px;
-            }
-
-            .hamburger-icon {
-                width: 20px;
-                height: 2px;
-            }
-
-            .hamburger-icon::before,
-            .hamburger-icon::after {
-                width: 20px;
-                height: 2px;
-            }
-
-            .hamburger-icon::before {
-                top: -6px;
-            }
-
-            .hamburger-icon::after {
-                top: 6px;
             }
         }
 
@@ -743,7 +589,6 @@
             font-weight: 600;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             z-index: 999;
-            animation: fadeIn 0.5s ease;
             display: none;
         }
 
@@ -762,37 +607,26 @@
             border-color: rgba(0, 200, 0, 0.3);
             color: #27ae60;
         }
-
-        @media (max-width: 768px) {
-            .connection-status {
-                top: 10px;
-                right: 10px;
-                padding: 10px 15px;
-                font-size: 0.85rem;
-            }
-        }
     </style>
 </head>
 <body>
     <!-- Модальное окно авторизации -->
     <div class="auth-modal" id="authModal">
         <div class="auth-box">
-            <h1>Xsocial v2.0</h1>
-            <p>Добро пожаловать в мессенджер нового поколения</p>
+            <h1>Xsocial v3.0</h1>
+            <p>Мессенджер с приватными чатами</p>
             
             <div class="auth-tabs">
                 <button class="auth-tab active" onclick="switchAuthTab('login')">Вход</button>
                 <button class="auth-tab" onclick="switchAuthTab('register')">Регистрация</button>
             </div>
 
-            <!-- Форма входа -->
             <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
                 <input type="email" id="loginEmail" placeholder="Email" required>
                 <input type="password" id="loginPassword" placeholder="Пароль" required>
                 <button type="submit">Войти</button>
             </form>
 
-            <!-- Форма регистрации -->
             <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
                 <input type="text" id="registerUsername" placeholder="Имя пользователя" required>
                 <input type="email" id="registerEmail" placeholder="Email" required>
@@ -802,15 +636,10 @@
         </div>
     </div>
 
-    <!-- Оверлей для мобильных -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
-
-    <!-- Статус подключения -->
     <div class="connection-status" id="connectionStatus"></div>
 
-    <!-- Основной контейнер -->
     <div class="container">
-        <!-- Левая панель -->
         <div class="sidebar" id="sidebar">
             <div class="profile-section">
                 <h2>👤 Профиль</h2>
@@ -819,20 +648,21 @@
             </div>
 
             <div class="rooms-section">
-                <h3>💬 Комнаты</h3>
-                <div class="room-item active" onclick="switchRoom('Главный зал', this)">
+                <h3>💬 Чаты</h3>
+                <div class="room-item active" onclick="switchToPublicRoom('Главный зал', this)">
                     <h4>🌐 Главный зал</h4>
-                    <p>Общая комната для всех</p>
+                    <p>Общая комната</p>
                 </div>
+                <!-- Сюда будут добавляться приватные чаты -->
+                <div id="privateChatsList"></div>
             </div>
 
-            <button class="add-user-btn" onclick="addUserByLogin()">
+            <button class="add-user-btn" onclick="showAddUserModal()">
                 <span class="plus-icon">+</span>
-                <span>Добавить пользователя</span>
+                <span>Новый чат</span>
             </button>
         </div>
 
-        <!-- Правая панель - чат -->
         <div class="chat-panel">
             <div class="chat-header">
                 <button class="hamburger-btn" onclick="toggleSidebar()">
@@ -858,11 +688,12 @@
         const supabaseKey = 'sb_publishable_WlIcNs2dJz_Se_wJEXM-FA_5IFGi8OL';
 
         // ============================================
-        // ПЕРЕМЕННЫЕ ПРИЛОЖЕНИЯ
+        // ПЕРЕМЕННЫЕ
         // ============================================
         let currentUser = null;
-        let currentRoom = 'Главный зал';
+        let currentRoom = 'Главный зал'; // Может быть строкой (публичный) или UUID (приватный)
         let supabaseClient = null;
+        let userChats = []; // Список чатов пользователя
 
         // ============================================
         // ИНИЦИАЛИЗАЦИЯ
@@ -875,7 +706,7 @@
         function initSupabase() {
             if (supabaseUrl && supabaseKey) {
                 supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-                showStatus('✓ Подключено к Supabase', 'success');
+                showStatus('✓ Подключено', 'success');
             } else {
                 showStatus('⚠ Supabase не настроен', 'error');
             }
@@ -893,22 +724,16 @@
         }
 
         // ============================================
-        // УПРАВЛЕНИЕ SIDEBAR (МОБИЛЬНАЯ АДАПТАЦИЯ)
+        // УПРАВЛЕНИЕ SIDEBAR
         // ============================================
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
         function closeSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            
-            sidebar.classList.remove('open');
-            overlay.classList.remove('active');
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
         }
 
         // ============================================
@@ -932,13 +757,10 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email,
-                password
-            });
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
             if (error) {
-                alert('Ошибка входа: ' + error.message);
+                alert('Ошибка: ' + error.message);
                 return;
             }
 
@@ -955,36 +777,95 @@
             const { data, error } = await supabaseClient.auth.signUp({
                 email,
                 password,
-                options: {
-                    data: { username }
-                }
+                options: { data: { username } }
             });
 
             if (error) {
-                alert('Ошибка регистрации: ' + error.message);
+                alert('Ошибка: ' + error.message);
                 return;
             }
 
             if (data.user && !data.session) {
-                alert('Регистрация успешна! Проверьте email для подтверждения.');
+                alert('Проверьте email для подтверждения!');
             } else {
                 currentUser = data.user;
                 completeLogin();
             }
         }
 
-        function completeLogin() {
+        async function completeLogin() {
             document.getElementById('authModal').classList.add('hidden');
             const username = currentUser.user_metadata?.username || currentUser.email.split('@')[0];
             document.getElementById('currentUserDisplay').textContent = username;
+            
+            await loadUserChats();
             loadMessages();
             startAutoRefresh();
         }
 
         // ============================================
-        // КОМНАТЫ
+        // ЗАГРУЗКА ЧАТОВ ПОЛЬЗОВАТЕЛЯ
         // ============================================
-        function switchRoom(roomName, element) {
+        async function loadUserChats() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('chat_participants')
+                    .select('chat_id, chats(id, is_private)')
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+
+                userChats = data || [];
+                renderPrivateChats();
+                
+            } catch (err) {
+                console.error('Ошибка загрузки чатов:', err);
+            }
+        }
+
+        function renderPrivateChats() {
+            const container = document.getElementById('privateChatsList');
+            container.innerHTML = '';
+
+            userChats.forEach(async (chatData) => {
+                const chatId = chatData.chat_id;
+                
+                // Получаем имя собеседника
+                const { data: participants } = await supabaseClient
+                    .from('chat_participants')
+                    .select('user_id')
+                    .eq('chat_id', chatId);
+
+                const otherUserId = participants.find(p => p.user_id !== currentUser.id)?.user_id;
+                
+                let chatName = 'Личный чат';
+                if (otherUserId) {
+                    const { data: profile } = await supabaseClient
+                        .from('profiles')
+                        .select('username')
+                        .eq('id', otherUserId)
+                        .single();
+                    
+                    if (profile) {
+                        chatName = profile.username;
+                    }
+                }
+
+                const div = document.createElement('div');
+                div.className = 'room-item';
+                div.onclick = () => switchToPrivateChat(chatId, chatName, this);
+                div.innerHTML = `
+                    <h4>🔒 ${chatName}</h4>
+                    <p>Приватный чат</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // ============================================
+        // ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ЧАТАМИ
+        // ============================================
+        function switchToPublicRoom(roomName, element) {
             currentRoom = roomName;
             
             document.querySelectorAll('.room-item').forEach(item => {
@@ -992,50 +873,157 @@
             });
             if (element) element.classList.add('active');
             
-            const roomTitle = document.getElementById('roomTitle');
-            const icon = roomName === 'Главный зал' ? '🌐' : '💬';
-            roomTitle.textContent = `${icon} ${roomName}`;
-            
+            document.getElementById('roomTitle').textContent = `🌐 ${roomName}`;
             loadMessages();
             
-            // Закрываем sidebar на мобильных после выбора комнаты
-            if (window.innerWidth <= 768) {
-                closeSidebar();
+            if (window.innerWidth <= 768) closeSidebar();
+        }
+
+        function switchToPrivateChat(chatId, chatName, element) {
+            currentRoom = chatId;
+            
+            document.querySelectorAll('.room-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (element) element.classList.add('active');
+            
+            document.getElementById('roomTitle').textContent = `🔒 ${chatName}`;
+            loadMessages();
+            
+            if (window.innerWidth <= 768) closeSidebar();
+        }
+
+        // ============================================
+        // СОЗДАНИЕ НОВОГО ЧАТА
+        // ============================================
+        async function showAddUserModal() {
+            const targetUsername = prompt('Введите имя пользователя для создания чата:');
+            
+            if (!targetUsername || !targetUsername.trim()) return;
+
+            try {
+                showStatus('Поиск пользователя...', 'success');
+
+                // 1. Ищем пользователя по username
+                const { data: targetProfile, error: searchError } = await supabaseClient
+                    .from('profiles')
+                    .select('id, username')
+                    .eq('username', targetUsername.trim())
+                    .single();
+
+                if (searchError || !targetProfile) {
+                    alert('Пользователь не найден!');
+                    showStatus('Пользователь не найден', 'error');
+                    return;
+                }
+
+                if (targetProfile.id === currentUser.id) {
+                    alert('Нельзя создать чат с самим собой!');
+                    return;
+                }
+
+                // 2. Проверяем, есть ли уже чат
+                const { data: existingChats } = await supabaseClient
+                    .from('chat_participants')
+                    .select('chat_id')
+                    .eq('user_id', currentUser.id);
+
+                let chatId = null;
+
+                for (const row of existingChats || []) {
+                    const { data: otherParticipants } = await supabaseClient
+                        .from('chat_participants')
+                        .select('user_id')
+                        .eq('chat_id', row.chat_id);
+                    
+                    if (otherParticipants?.some(p => p.user_id === targetProfile.id)) {
+                        chatId = row.chat_id;
+                        break;
+                    }
+                }
+
+                // 3. Создаем новый чат если нужно
+                if (!chatId) {
+                    const { data: newChat, error: createError } = await supabaseClient
+                        .from('chats')
+                        .insert([{ is_private: true }])
+                        .select()
+                        .single();
+
+                    if (createError) throw createError;
+                    chatId = newChat.id;
+
+                    await supabaseClient.from('chat_participants').insert([
+                        { chat_id: chatId, user_id: currentUser.id },
+                        { chat_id: chatId, user_id: targetProfile.id }
+                    ]);
+                    
+                    showStatus('Чат создан!', 'success');
+                } else {
+                    showStatus('Чат найден!', 'success');
+                }
+
+                // 4. Переключаемся на чат
+                await loadUserChats();
+                switchToPrivateChat(chatId, targetProfile.username);
+
+            } catch (err) {
+                console.error(err);
+                showStatus('Ошибка создания чата', 'error');
+                alert('Ошибка: ' + err.message);
             }
         }
 
         // ============================================
         // СООБЩЕНИЯ
         // ============================================
-        async function sendMessage() {
+                async function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const messageText = messageInput.value.trim();
             
             if (!messageText) return;
 
+            // Получаем данные пользователя безопасно
             const username = currentUser.user_metadata?.username || currentUser.email.split('@')[0];
+            const userId = currentUser.id;
 
+            // Формируем объект сообщения
             const messageObj = {
                 sender: username,
                 text: messageText,
-                room: currentRoom,
-                user_id: currentUser.id,
-                created_at: new Date().toISOString()
+                created_at: new Date().toISOString(),
+                user_id: userId // Убедись, что эта колонка есть в базе!
             };
 
+            // Определяем, куда отправлять: в приватный чат (chat_id) или общую комнату (room)
+            if (currentRoom && currentRoom.length > 20) { 
+                // Это UUID приватного чата
+                messageObj.chat_id = currentRoom;
+                messageObj.room = null; // Или можно оставить пустым, если база позволяет
+            } else {
+                // Это общая комната
+                messageObj.room = currentRoom;
+                messageObj.chat_id = null;
+            }
+
             try {
-                const { error } = await supabaseClient
+                console.log("Отправляем сообщение:", messageObj); // Для отладки в консоли
+                
+                const { data, error } = await supabaseClient
                     .from('mesendger')
-                    .insert([messageObj]);
+                    .insert([messageObj])
+                    .select(); // Добавили .select(), чтобы увидеть результат
 
                 if (error) {
-                    console.error('Ошибка отправки:', error);
-                    showStatus('Ошибка отправки', 'error');
+                    console.error('Ошибка Supabase:', error);
+                    showStatus('Ошибка: ' + error.message, 'error');
                 } else {
+                    console.log('Сообщение успешно отправлено:', data);
                     loadMessages();
                 }
             } catch (err) {
-                console.error('Критическая ошибка:', err);
+                console.error('Критическая ошибка JS:', err);
+                showStatus('Произошла непредвиденная ошибка', 'error');
             }
 
             messageInput.value = '';
@@ -1044,12 +1032,19 @@
 
         async function loadMessages() {
             try {
-                const { data, error } = await supabaseClient
+                let query = supabaseClient
                     .from('mesendger')
                     .select('*')
-                    .eq('room', currentRoom)
                     .order('created_at', { ascending: true })
                     .limit(100);
+
+                if (currentRoom.length > 20) {
+                    query = query.eq('chat_id', currentRoom);
+                } else {
+                    query = query.eq('room', currentRoom);
+                }
+
+                const { data, error } = await query;
 
                 if (error) throw error;
                 if (data) renderMessages(data);
@@ -1091,17 +1086,6 @@
         }
 
         // ============================================
-        // ДОБАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ
-        // ============================================
-        function addUserByLogin() {
-            const login = prompt('Введите email пользователя для добавления:');
-            
-            if (login && login.trim()) {
-                alert(`Пользователь ${login} добавлен! (Функция в разработке)`);
-            }
-        }
-
-        // ============================================
         // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
         // ============================================
         function escapeHtml(text) {
@@ -1112,15 +1096,11 @@
         }
 
         function handleKeyPress(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
+            if (event.key === 'Enter') sendMessage();
         }
 
         function startAutoRefresh() {
-            setInterval(() => {
-                loadMessages();
-            }, 3000);
+            setInterval(() => loadMessages(), 3000);
         }
 
         function showStatus(text, type) {
@@ -1128,16 +1108,11 @@
             el.textContent = text;
             el.className = 'connection-status visible ' + type;
             
-            setTimeout(() => {
-                el.classList.remove('visible');
-            }, 3000);
+            setTimeout(() => el.classList.remove('visible'), 3000);
         }
 
-        // Закрытие sidebar при изменении размера окна
         window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                closeSidebar();
-            }
+            if (window.innerWidth > 768) closeSidebar();
         });
     </script>
 </body>
