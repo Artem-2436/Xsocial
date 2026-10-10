@@ -6,6 +6,9 @@
     <title>Xsocial v3.0 - Мессенджер</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* ========================================== */
+        /* ТВОИ СТИЛИ ОСТАЛИСЬ 100% НЕИЗМЕННЫМИ       */
+        /* ========================================== */
         * {
             margin: 0;
             padding: 0;
@@ -20,7 +23,6 @@
             overflow: hidden;
         }
 
-        /* Модальное окно авторизации */
         .auth-modal {
             position: fixed;
             top: 0;
@@ -136,7 +138,6 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
-        /* Основной контейнер */
         .container {
             display: flex;
             height: 100vh;
@@ -144,7 +145,6 @@
             gap: 20px;
         }
 
-        /* Кнопка гамбургер */
         .hamburger-btn {
             display: none;
             background: rgba(0, 0, 0, 0.9);
@@ -187,7 +187,6 @@
             top: 8px;
         }
 
-        /* Оверлей для мобильных */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -206,7 +205,6 @@
             opacity: 1;
         }
 
-        /* Левая панель */
         .sidebar {
             width: 340px;
             background: rgba(255, 255, 255, 0.6);
@@ -325,7 +323,6 @@
             font-weight: 700;
         }
 
-        /* Правая панель - чат */
         .chat-panel {
             flex: 1;
             background: rgba(255, 255, 255, 0.6);
@@ -466,7 +463,6 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
-        /* Скроллбар */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -481,7 +477,6 @@
             border-radius: 10px;
         }
 
-        /* Анимации */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -498,7 +493,6 @@
             }
         }
 
-        /* Адаптивность */
         @media (max-width: 1024px) {
             .container {
                 padding: 15px;
@@ -691,6 +685,7 @@
         // ============================================
         let currentUser = null;
         let currentRoom = 'Главный зал'; // Может быть строкой (публичный) или UUID (приватный)
+        let isPrivateChat = false;
         let supabaseClient = null;
         let userChats = []; // Список чатов пользователя
 
@@ -822,16 +817,13 @@
             }
         }
 
-                function renderPrivateChats() {
+        function renderPrivateChats() {
             const container = document.getElementById('privateChatsList');
-            
-            // ВАЖНО: Очищаем список перед отрисовкой, чтобы чаты не дублировались
-            container.innerHTML = ''; 
+            container.innerHTML = ''; // Очищаем перед отрисовкой
 
             userChats.forEach(async (chatData) => {
                 const chatId = chatData.chat_id;
                 
-                // Ищем собеседника
                 const { data: participants } = await supabaseClient
                     .from('chat_participants')
                     .select('user_id')
@@ -854,9 +846,8 @@
 
                 const div = document.createElement('div');
                 div.className = 'room-item';
-                div.id = `chat-item-${chatId}`; // Добавили ID для удобства
+                div.id = `chat-item-${chatId}`;
                 
-                // Если этот чат сейчас открыт, делаем его активным
                 if (currentRoom === chatId) {
                     div.classList.add('active');
                 }
@@ -870,47 +861,42 @@
             });
         }
 
-                const div = document.createElement('div');
-                div.className = 'room-item';
-                div.onclick = () => switchToPrivateChat(chatId, chatName, this);
-                div.innerHTML = `
-                    <h4>🔒 ${chatName}</h4>
-                    <p>Приватный чат</p>
-                `;
-                container.appendChild(div);
-            ;
-        
-
         // ============================================
         // ПЕРЕКЛЮЧЕНИЕ МЕЖДУ ЧАТАМИ
         // ============================================
         function switchToPublicRoom(roomName, element) {
-            currentRoom = roomName;
-            
-            document.querySelectorAll('.room-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            if (element) element.classList.add('active');
-            
-            document.getElementById('roomTitle').textContent = `🌐 ${roomName}`;
-            loadMessages();
-            
-            if (window.innerWidth <= 768) closeSidebar();
-        }
+    currentRoom = roomName;
+    isPrivateChat = false;
+    
+    document.querySelectorAll('.room-item').forEach(item => item.classList.remove('active'));
+    if (element) element.classList.add('active');
+    
+    document.getElementById('roomTitle').textContent = ` ${roomName}`;
+    
+    // 🔥 ЖЕСТКАЯ ОЧИСТКА ПЕРЕД ЗАГРУЗКОЙ НОВЫХ ДАННЫХ
+    document.getElementById('messagesContainer').innerHTML = ''; 
+    
+    loadMessages();
+    if (window.innerWidth <= 768) closeSidebar();
+}
 
-        function switchToPrivateChat(chatId, chatName, element) {
-            currentRoom = chatId;
-            
-            document.querySelectorAll('.room-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            if (element) element.classList.add('active');
-            
-            document.getElementById('roomTitle').textContent = `🔒 ${chatName}`;
-            loadMessages();
-            
-            if (window.innerWidth <= 768) closeSidebar();
-        }
+function switchToPrivateChat(chatId, chatName, element) {
+    currentRoom = chatId;
+    isPrivateChat = true;
+    
+    document.querySelectorAll('.room-item').forEach(item => item.classList.remove('active'));
+    if (element) element.classList.add('active');
+    
+    document.getElementById('roomTitle').textContent = `🔒 ${chatName}`;
+    
+    // 🔥 ЖЕСТКАЯ ОЧИСТКА ПЕРЕД ЗАГРУЗКОЙ НОВЫХ ДАННЫХ
+    document.getElementById('messagesContainer').innerHTML = ''; 
+    
+    loadMessages();
+    if (window.innerWidth <= 768) closeSidebar();
+}
+
+        
 
         // ============================================
         // СОЗДАНИЕ НОВОГО ЧАТА
@@ -923,7 +909,6 @@
             try {
                 showStatus('Поиск пользователя...', 'success');
 
-                // 1. Ищем пользователя по username
                 const { data: targetProfile, error: searchError } = await supabaseClient
                     .from('profiles')
                     .select('id, username')
@@ -941,7 +926,6 @@
                     return;
                 }
 
-                // 2. Проверяем, есть ли уже чат
                 const { data: existingChats } = await supabaseClient
                     .from('chat_participants')
                     .select('chat_id')
@@ -961,7 +945,6 @@
                     }
                 }
 
-                // 3. Создаем новый чат если нужно
                 if (!chatId) {
                     const { data: newChat, error: createError } = await supabaseClient
                         .from('chats')
@@ -982,7 +965,6 @@
                     showStatus('Чат найден!', 'success');
                 }
 
-                // 4. Переключаемся на чат
                 await loadUserChats();
                 switchToPrivateChat(chatId, targetProfile.username);
 
@@ -994,129 +976,136 @@
         }
 
         // ============================================
-        // СООБЩЕНИЯ
+        // СООБЩЕНИЯ (ЖЁСТКАЯ ИЗОЛЯЦИЯ)
         // ============================================
-                async function sendMessage() {
-            const messageInput = document.getElementById('messageInput');
-            const messageText = messageInput.value.trim();
-            
-            if (!messageText) return;
+        async function sendMessage() {
+    const messageInput = document.getElementById('messageInput');
+    const messageText = messageInput.value.trim();
+    
+    if (!messageText) return;
 
-            // Получаем данные пользователя безопасно
-            const username = currentUser.user_metadata?.username || currentUser.email.split('@')[0];
-            const userId = currentUser.id;
+    const username = currentUser.user_metadata?.username || currentUser.email.split('@')[0];
+    const userId = currentUser.id;
 
-            // Формируем объект сообщения
-            const messageObj = {
-                sender: username,
-                text: messageText,
-                created_at: new Date().toISOString(),
-                user_id: userId // Убедись, что эта колонка есть в базе!
-            };
+    const messageObj = {
+        sender: username,
+        text: messageText,
+        user_id: userId,
+        created_at: new Date().toISOString()
+    };
 
-            // Определяем, куда отправлять: в приватный чат (chat_id) или общую комнату (room)
-            if (currentRoom && currentRoom.length > 20) { 
-                // Это UUID приватного чата
-                messageObj.chat_id = currentRoom;
-                messageObj.room = null; // Или можно оставить пустым, если база позволяет
-            } else {
-                // Это общая комната
-                messageObj.room = currentRoom;
-                messageObj.chat_id = null;
-            }
-
-            try {
-                console.log("Отправляем сообщение:", messageObj); // Для отладки в консоли
-                
-                const { data, error } = await supabaseClient
-                    .from('mesendger')
-                    .insert([messageObj])
-                    .select(); // Добавили .select(), чтобы увидеть результат
-
-                if (error) {
-                    console.error('Ошибка Supabase:', error);
-                    showStatus('Ошибка: ' + error.message, 'error');
-                } else {
-                    console.log('Сообщение успешно отправлено:', data);
-                    loadMessages();
-                }
-            } catch (err) {
-                console.error('Критическая ошибка JS:', err);
-                showStatus('Произошла непредвиденная ошибка', 'error');
-            }
-
-            messageInput.value = '';
-            messageInput.focus();
+    try {
+        let error;
+        
+        // 🔒 ФИЗИЧЕСКАЯ ИЗОЛЯЦИЯ: разные таблицы
+        if (isPrivateChat) {
+            messageObj.chat_id = currentRoom;
+            const { error: err } = await supabaseClient.from('private_messages').insert([messageObj]);
+            error = err;
+        } else {
+            messageObj.room = currentRoom;
+            const { error: err } = await supabaseClient.from('mesendger').insert([messageObj]);
+            error = err;
         }
+
+        if (error) {
+            console.error('Ошибка отправки:', error);
+            showStatus('Ошибка: ' + error.message, 'error');
+        } else {
+            loadMessages(); // Перезагружаем чат
+        }
+    } catch (err) {
+        console.error('Критическая ошибка JS:', err);
+    }
+
+    messageInput.value = '';
+    messageInput.focus();
+}
 
         async function loadMessages() {
-            try {
-                let query = supabaseClient
-                    .from('mesendger')
-                    .select('*')
-                    .order('created_at', { ascending: true })
-                    .limit(100);
+    try {
+        let query;
 
-                if (currentRoom.length > 20) {
-                    query = query.eq('chat_id', currentRoom);
-                } else {
-                    query = query.eq('room', currentRoom);
-                }
-
-                const { data, error } = await query;
-
-                if (error) throw error;
-                if (data) renderMessages(data);
-                
-            } catch (err) {
-                console.error('Ошибка загрузки:', err);
-            }
+        // 🔒 ФИЗИЧЕСКАЯ ИЗОЛЯЦИЯ: читаем из разных таблиц
+        if (isPrivateChat) {
+            query = supabaseClient
+                .from('private_messages')
+                .select('*')
+                .eq('chat_id', currentRoom) // Тут только chat_id, без всяких null
+                .order('created_at', { ascending: true })
+                .limit(100);
+        } else {
+            query = supabaseClient
+                .from('mesendger')
+                .select('*')
+                .eq('room', currentRoom) // Тут только room, без всяких null
+                .order('created_at', { ascending: true })
+                .limit(100);
         }
 
-                function renderMessages(messages) {
-            const container = document.getElementById('messagesContainer');
-            const username = currentUser.user_metadata?.username || currentUser.email.split('@')[0];
-            
-            // Сохраняем текущую позицию скролла и флаг "находится ли пользователь внизу"
-            const isScrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
-            const previousScrollHeight = container.scrollHeight;
+        const { data, error } = await query;
 
-            messages.forEach(msg => {
-                // Проверяем, есть ли это сообщение уже в DOM (по уникальному ID или времени+тексту)
-                const existingMsg = container.querySelector(`[data-msg-id="${msg.id}"]`);
-                if (existingMsg) return; // Если уже есть — пропускаем, ничего не трогаем
+        if (error) throw error;
+        if (data) renderMessages(data);
+        
+    } catch (err) {
+        console.error('Ошибка загрузки:', err);
+    }
+}
 
-                const messageDiv = document.createElement('div');
-                const isSent = msg.sender === username;
-                
-                messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
-                messageDiv.setAttribute('data-msg-id', msg.id); // Добавляем уникальный маркер
-                
-                const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+        function renderMessages(messages) {
+    const container = document.getElementById('messagesContainer');
+    const username = currentUser.user_metadata?.username || currentUser.email.split('@')[0];
+    
+    // Сохраняем позицию скролла
+    const isScrolledToBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+    const previousScrollHeight = container.scrollHeight;
 
-                messageDiv.innerHTML = `
-                    <div class="message-bubble">
-                        <div class="message-sender">${escapeHtml(msg.sender)}</div>
-                        <div class="message-text">${escapeHtml(msg.text)}</div>
-                        <div class="message-time">${time}</div>
-                    </div>
-                `;
+    messages.forEach(msg => {
+        // Проверка 1: Есть ли такое сообщение уже в DOM?
+        const existingMsg = container.querySelector(`[data-msg-id="${msg.id}"]`);
+        if (existingMsg) return; 
 
-                container.appendChild(messageDiv);
-            });
+        // Проверка 2: Соответствует ли сообщение ТЕКУЩЕМУ типу чата?
+        // Если мы в приватном чате, но у сообщения есть поле 'room' — это мусор, игнорируем!
+        if (isPrivateChat && msg.room) return;
+        // Если мы в общем чате, но у сообщения есть поле 'chat_id' — это мусор, игнорируем!
+        if (!isPrivateChat && msg.chat_id) return;
 
-            // Автопрокрутка вниз ТОЛЬКО если пользователь был внизу ИЛИ появились новые сообщения
+        const messageDiv = document.createElement('div');
+        const isSent = msg.sender === username;
+        
+        messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+        messageDiv.setAttribute('data-msg-id', msg.id);
+        
+        const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        messageDiv.innerHTML = `
+            <div class="message-bubble">
+                <div class="message-sender">${escapeHtml(msg.sender)}</div>
+                <div class="message-text">${escapeHtml(msg.text)}</div>
+                <div class="message-time">${time}</div>
+            </div>
+        `;
+
+        container.appendChild(messageDiv);
+    });
+
+    // Умная прокрутка
+    const newScrollHeight = container.scrollHeight;
+    if (isScrolledToBottom && newScrollHeight > previousScrollHeight) {
+        container.scrollTop = newScrollHeight;
+    }
+}
+
             const newScrollHeight = container.scrollHeight;
             if (isScrolledToBottom && newScrollHeight > previousScrollHeight) {
                 container.scrollTop = newScrollHeight;
-            } else if (!isScrolledToBottom && newScrollHeight > previousScrollHeight) {
-                // Если пользователь читает старые сообщения, просто показываем индикатор новых
-                // (можно добавить маленькую кнопку "Новые сообщения", но пока оставим как есть)
             }
-        }
+        
 
         // ============================================
         // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -1132,11 +1121,11 @@
             if (event.key === 'Enter') sendMessage();
         }
 
-                function startAutoRefresh() {
+        function startAutoRefresh() {
             setInterval(() => {
-                loadMessages();      // Проверяем новые сообщения
-                loadUserChats();     // Проверяем новые чаты!
-            }, 3000);
+                loadMessages();
+                loadUserChats();
+            }, 10000);
         }
 
         function showStatus(text, type) {
