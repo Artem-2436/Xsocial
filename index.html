@@ -697,41 +697,71 @@
             }));
             
             renderChatList();
+            // ... внутри fetchChats, после chats = finalChats.map(...) ...
+
+// Собираем все уникальные ID партнеров из DM чатов
+const partnerIds = [];
+chats.forEach(c => {
+    if (c.type === 'dm' && c.partnerId) {
+        partnerIds.push(c.partnerId);
+    }
+});
+const uniquePartnerIds = [...new Set(partnerIds)];
+
+let profilesMap = {};
+
+// Делаем ОДИН запрос за всеми именами сразу
+if (uniquePartnerIds.length > 0) {
+    const { data: profiles, error } = await supabaseClient
+        .from('profiles')
+        .select('id, username')
+        .in('id', uniquePartnerIds); // <-- Магия IN
+        
+    if (!error && profiles) {
+        profiles.forEach(p => {
+            profilesMap[p.id] = p.username;
+        });
+    }
+}
+
+// Обновляем displayName в нашем локальном массиве chats
+chats.forEach(c => {
+    if (c.type === 'dm' && c.partnerId && profilesMap[c.partnerId]) {
+        c.displayName = "@" + profilesMap[c.partnerId];
+    } else if (c.type === 'dm') {
+        c.displayName = "Unknown User";
+    }
+});
+
+renderChatList(); // Теперь рендер будет мгновенным, так как данные уже есть
         }
 
-        async function renderChatList() {
-            els.chatListEl.innerHTML = '';
-            if (chats.length === 0) { els.chatListEl.innerHTML = '<div class="empty-state-sidebar">Нет чатов.</div>'; return; }
+        function renderChatList() {
+    els.chatListEl.innerHTML = '';
+    if (chats.length === 0) { 
+        els.chatListEl.innerHTML = '<div class="empty-state-sidebar">Нет чатов.</div>'; 
+        return; 
+    }
 
-            const promises = chats.map(async (chat) => {
-                if(chat.type === 'dm' && chat.partnerId) {
-                     const { data: p } = await supabaseClient.from('profiles').select('username').eq('id', chat.partnerId).single();
-                     if(p) chat.displayName = "@" + p.username;
-                }
-                return chat;
-            });
-            const enriched = await Promise.all(promises);
-            chats = enriched;
+    chats.forEach(chat => {
+        const div = document.createElement('div');
+        div.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
+        div.onclick = () => openChat(chat);
+        
+        let badge = '';
+        if(chat.type === 'group') badge = '<span class="chat-type-badge">GROUP</span>';
+        if(chat.type === 'channel') badge = '<span class="chat-type-badge">CHANNEL</span>';
 
-            chats.forEach(chat => {
-                const div = document.createElement('div');
-                div.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
-                div.onclick = () => openChat(chat);
-                
-                let badge = '';
-                if(chat.type === 'group') badge = '<span class="chat-type-badge">GROUP</span>';
-                if(chat.type === 'channel') badge = '<span class="chat-type-badge">CHANNEL</span>';
-
-                div.innerHTML = `
-                    <div class="avatar">${chat.displayName.charAt(0).toUpperCase()}</div>
-                    <div class="chat-info">
-                        <div class="chat-name">${chat.displayName} ${badge}</div>
-                        <div class="chat-preview">${escapeHtml(chat.lastMessageText)}</div>
-                    </div>
-                `;
-                els.chatListEl.appendChild(div);
-            });
-        }
+        div.innerHTML = `
+            <div class="avatar">${chat.displayName.charAt(0).toUpperCase()}</div>
+            <div class="chat-info">
+                <div class="chat-name">${escapeHtml(chat.displayName)} ${badge}</div>
+                <div class="chat-preview">${escapeHtml(chat.lastMessageText)}</div>
+            </div>
+        `;
+        els.chatListEl.appendChild(div);
+    });
+}
 
         function escapeHtml(text) { if(!text) return ""; const map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(text).replace(/[&<>"']/g,m=>map[m]); }
 
@@ -981,13 +1011,36 @@
 }
 
         async function loadMessages(chatId) {
-            els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa;">...</div>';
-            const { data, error } = await supabaseClient.from('messages').select('*').eq('chat_id', chatId).order('created_at', { ascending: true });
-            els.messagesContainer.innerHTML = '';
-            if(error || !data || data.length === 0) { els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Начните диалог!</div>'; return; }
-            data.forEach(msg => appendMessageToDOM(msg));
-            scrollToBottom();
-        }
+    els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa;">Загрузка...</div>';
+    
+    // 1. Берем только последние 20 сообщений (LIMIT 20)
+    const { data, error } = await supabaseClient
+        .from('messages')
+        .select('*')
+        .eq('chat_id', chatId)
+        .order('created_at', { ascending: false }) // Сначала новые
+        .limit(20); // <--- КЛЮЧЕВОЙ ФИКС
+
+    if(error) { 
+        console.error(error); 
+        els.messagesContainer.innerHTML = '<div style="color:red; text-align:center;">Ошибка</div>'; 
+        return; 
+    }
+
+    els.messagesContainer.innerHTML = '';
+    
+    if (!data || data.length === 0) {
+        els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Начните диалог!</div>';
+        return;
+    }
+
+    // 2. Разворачиваем массив обратно (чтобы старые были сверху, новые снизу)
+    const sortedData = data.reverse();
+
+    // 3. Рендерим
+    sortedData.forEach(msg => appendMessageToDOM(msg));
+    scrollToBottom();
+}
 
         function appendMessageToDOM(msg) {
     // 1. Проверка на дубликаты для МОИХ сообщений
