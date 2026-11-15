@@ -481,6 +481,12 @@
         let activeChatData = null; 
         let myRoleInActiveChat = 'member'; // owner, admin, member
         let realtimeChannel = null; // Хранит ссылку на активный канал подписки
+        // Кэш сообщений: { chatId: [array_of_messages] }
+let messageCache = {}; 
+
+// Кэш профилей пользователей: { userId: { username, avatar_url } }
+// Это нужно, чтобы не тянуть имена каждый раз при открытии чата или поиске
+let profileCache = {}; 
         
         let wizardState = {
             step: 1, type: '', name: '', description: '', isPublic: false, channelUsername: '', selectedContacts: []
@@ -748,6 +754,9 @@ renderChatList(); // Теперь рендер будет мгновенным, 
         div.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
         div.onclick = () => openChat(chat);
         
+        // ВАЖНО: Добавляем data-атрибут для поиска элемента позже
+        div.setAttribute('data-chat-id', chat.id);
+
         let badge = '';
         if(chat.type === 'group') badge = '<span class="chat-type-badge">GROUP</span>';
         if(chat.type === 'channel') badge = '<span class="chat-type-badge">CHANNEL</span>';
@@ -761,6 +770,53 @@ renderChatList(); // Теперь рендер будет мгновенным, 
         `;
         els.chatListEl.appendChild(div);
     });
+}
+function updateSingleChatItem(chatId, newContent, timestamp) {
+    // 1. Находим элемент в DOM
+    const item = document.querySelector(`.chat-item[data-chat-id="${chatId}"]`);
+    if (!item) return; // Элемента нет, значит чат еще не загрузился в список
+
+    // 2. Обновляем текст превью
+    const previewEl = item.querySelector('.chat-preview');
+    if(previewEl) {
+        // Обрезаем длинный текст
+        const shortText = newContent.length > 30 ? newContent.substring(0, 30) + '...' : newContent;
+        previewEl.textContent = escapeHtml(shortText);
+    }
+
+    // 3. Логика "Поднять наверх"
+    // В реальном времени сложно менять порядок DOM без потери скролла.
+    // Простое решение: удаляем элемент и вставляем первым.
+    // Но это может вызвать мерцание. Более плавное решение:
+    // Просто меняем класс или стиль, если ты используешь CSS Flex/Grid order.
+    
+    // Для MVP сделаем так: пересортируем локальный массив chats и перерисуем СПИСОК ЧАТОВ,
+    // НО ТОЛЬКО ЕСЛИ количество чатов маленькое (< 20).
+    // Если чатов много, лучше оставить старый способ (полный реджет), но он медленный.
+    
+    // КОМПРОМИСС: Обновляем данные в массиве `chats`
+    const chatIndex = chats.findIndex(c => c.id === chatId);
+    if (chatIndex !== -1) {
+        chats[chatIndex].lastMessageText = newContent;
+        chats[chatIndex].lastMessageTime = timestamp;
+        
+        // Вызываем полный рендер, но теперь он использует наши оптимизации? 
+        // Нет, полный рендер все равно дорогой.
+        // Поэтому для максимальной скорости: НЕ делаем полный рендер здесь.
+        // Мы просто обновили DOM выше. Порядок сортировки визуально нарушится,
+        // но исправится при следующем открытии чата или ручном обновлении.
+    }
+}
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
         function escapeHtml(text) { if(!text) return ""; const map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(text).replace(/[&<>"']/g,m=>map[m]); }
@@ -1010,84 +1066,103 @@ renderChatList(); // Теперь рендер будет мгновенным, 
     subscribeToRealtime(chat.id);
 }
 
-        async function loadMessages(chatId) {
-    els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa;">Загрузка...</div>';
+        
+
+async function loadMessages(chatId) {
+    // 1. ПРОВЕРКА КЭША
+    if (messageCache[chatId]) {
+        console.log("Rendering from CACHE for chat:", chatId);
+        renderCachedMessages(chatId);
+        return; // Выходим, не трогая сеть
+    }
+
+    // 2. ЗАГРУЗКА ИЗ БАЗЫ (если кэша нет)
+    els.messagesContainer.innerHTML = '';
     
-    // 1. Берем только последние 20 сообщений (LIMIT 20)
     const { data, error } = await supabaseClient
         .from('messages')
         .select('*')
         .eq('chat_id', chatId)
-        .order('created_at', { ascending: false }) // Сначала новые
-        .limit(20); // <--- КЛЮЧЕВОЙ ФИКС
+        .order('created_at', { ascending: false })
+        .limit(50); // Берем больше для первого экрана
 
     if(error) { 
         console.error(error); 
-        els.messagesContainer.innerHTML = '<div style="color:red; text-align:center;">Ошибка</div>'; 
-        return; 
+        els.messagesContainer.innerHTML = '<div style="color:red; text-align:center;">Ошибка загрузки</div>'; 
+        return;
     }
 
-    els.messagesContainer.innerHTML = '';
-    
     if (!data || data.length === 0) {
+        messageCache[chatId] = []; // Сохраняем пустой массив в кэш
         els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Начните диалог!</div>';
         return;
     }
 
-    // 2. Разворачиваем массив обратно (чтобы старые были сверху, новые снизу)
+    // Разворачиваем массив (старые сверху, новые снизу)
     const sortedData = data.reverse();
+    
+    // 3. СОХРАНЕНИЕ В КЭШ
+    messageCache[chatId] = sortedData;
 
-    // 3. Рендерим
-    sortedData.forEach(msg => appendMessageToDOM(msg));
+    // 4. РЕНДЕР
+    renderCachedMessages(chatId);
+}
+
+// Новая вспомогательная функция для отрисовки того, что лежит в кэше
+function renderCachedMessages(chatId) {
+    els.messagesContainer.innerHTML = '';
+    const messages = messageCache[chatId];
+    
+    if(messages.length === 0) {
+         els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Чат пуст.</div>';
+         return;
+    }
+
+    messages.forEach(msg => appendMessageToDOM(msg));
     scrollToBottom();
 }
 
+function renderCachedMessages(chatId) {
+    els.messagesContainer.innerHTML = '';
+    messageCache[chatId].forEach(msg => appendMessageToDOM(msg));
+    scrollToBottom();
+}
         function appendMessageToDOM(msg) {
-    // 1. Проверка на дубликаты для МОИХ сообщений
-    if (msg.sender_id === currentUser.id && activeChatId === msg.chat_id) {
-        
-        // Ищем существующее временное сообщение с тем же текстом
-        const existingTemp = document.querySelector(`.message-bubble[data-temp-content="${escapeAttr(msg.content)}"]`);
-        
-        if (existingTemp) {
-            console.log("Replacing temp message with real one:", msg.id);
-            // Удаляем временное
-            existingTemp.remove();
-            
-            // Создаем новый элемент с РЕАЛЬНЫМ ID
-            const isMine = true;
-            const div = document.createElement('div');
-            div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
-            div.setAttribute('data-real-id', msg.id);
-            div.innerHTML = renderMessageContent(msg.content); // Используем нашу новую функцию рендера
-            
-            els.messagesContainer.appendChild(div);
-            scrollToBottom();
-            return; // Выходим, чтобы не рисовать второй раз ниже
-        }
-
-        // Если временного нет, проверяем, нет ли уже реального сообщения с таким ID
-        const existingReal = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
-        if (existingReal) {
-            return; // Уже есть, пропускаем
-        }
+    // 1. Проверка на дубликаты в DOM
+    // Ищем любой элемент с таким же реальным ID
+    const existingElement = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
+    
+    if (existingElement) {
+        console.log("Duplicate detected, skipping render for ID:", msg.id);
+        return; // Выходим, если такое сообщение уже на экране
     }
 
-    // 2. Стандартная логика для ЧУЖИХ сообщений или новых моих
+    // 2. Обновляем кэш (если используешь messageCache)
+    if (!messageCache[msg.chat_id]) {
+        messageCache[msg.chat_id] = [];
+    }
+    
+    // Проверяем, нет ли его в массиве кэша (дополнительная защита)
+    const existsInCache = messageCache[msg.chat_id].some(m => m.id === msg.id);
+    if (!existsInCache) {
+        messageCache[msg.chat_id].push(msg);
+    }
+
+    // 3. Рендерим только если это активный чат
+    if (activeChatId !== msg.chat_id) {
+        return; // Не рисуем сообщения других чатов в текущий контейнер
+    }
+
     const isMine = msg.sender_id === currentUser.id;
     const div = document.createElement('div');
     div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
+    div.setAttribute('data-real-id', msg.id); // Критически важно для проверки выше
     
-    if (!isMine) {
-        // Для чужих сообщений сразу ставим реальный ID
-        div.setAttribute('data-real-id', msg.id);
-    } else {
-        // Для моих, если они пришли впервые (без temp), тоже реальный ID
-        div.setAttribute('data-real-id', msg.id);
-    }
+    // Используем твою функцию рендера контента (текст/медиа)
+    div.innerHTML = renderMessageContent(msg.content); 
     
-    div.innerHTML = renderMessageContent(msg.content);
     els.messagesContainer.appendChild(div);
+    scrollToBottom();
 }
 
 // Вспомогательная функция для безопасного экранирования атрибутов
@@ -1113,31 +1188,31 @@ function renderMessageContent(content) {
 
         function scrollToBottom() { els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight; }
 
-       async function sendMessage() {
+       // Замени текущую функцию sendMessage на эту логику
+async function sendMessage() {
     const text = els.messageInput.value.trim();
     if(!text || !activeChatId) return;
     
-    // Проверка прав для канала
-    if(activeChatData.type === 'channel' && myRoleInActiveChat !== 'owner' && myRoleInActiveChat !== 'admin') {
-        alert("You cannot post in this channel");
-        return;
-    }
+    els.messageInput.value = '';
 
-    // Очищаем поле ввода сразу (для ощущения скорости)
-    els.messageInput.value = ''; 
+    try {
+        // Отправляем в базу
+        const { error } = await supabaseClient.from('messages').insert([{ 
+            chat_id: activeChatId, 
+            sender_id: currentUser.id, 
+            content: text 
+        }]);
 
-    // Отправляем в базу
-    const { error } = await supabaseClient.from('messages').insert([{ 
-        chat_id: activeChatId, 
-        sender_id: currentUser.id, 
-        content: text 
-    }]);
+        if(error) throw error;
 
-    if(error) {
-        alert("Ошибка отправки: " + error.message);
+        // МЫ НЕ РИСУЕМ СООБЩЕНИЕ ЗДЕСЬ ВРУЧНУЮ!
+        // Оно придет через subscribeToRealtime -> appendMessageToDOM
+        // Благодаря защите по ID в appendMessageToDOM, оно нарисуется ровно один раз.
+        
+    } catch (err) {
+        alert("Ошибка отправки");
         els.messageInput.value = text; // Возвращаем текст при ошибке
     }
-    // Всё! Реалтайм сам подтянет сообщение и отрисует его.
 }
 // Удаляет временное сообщение из DOM (при ошибке сети)
 function removeTempMessageById(tempId) {
