@@ -250,7 +250,7 @@
     <!-- 1. Экран Авторизации -->
     <div id="auth-screen">
         <div class="glass-card">
-            <div class="brand-logo"><h1>Xsocial v1.1</h1><p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">By Xcortex & Asinhrom</p></div>
+            <div class="brand-logo"><h1>Xsocial</h1><p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">By Xcortex & Asinhrom</p></div>
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab('login')">Вход</button>
                 <button class="tab-btn" onclick="switchTab('register')">Регистрация</button>
@@ -990,44 +990,77 @@
         }
 
         function appendMessageToDOM(msg) {
-    // ПРОВЕРКА НА ДУБЛИКАТЫ:
-    // Если у нас есть активный чат, и это мое собственное сообщение,
-    // проверяем, не рисовали ли мы его уже вручную (optimistic update).
+    // 1. Проверка на дубликаты для МОИХ сообщений
     if (msg.sender_id === currentUser.id && activeChatId === msg.chat_id) {
-        // Ищем элемент с таким же реальным ID
-        const existingEl = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
-        if (existingEl) {
-            console.log("Skipping duplicate render for own message:", msg.id);
-            return; // Не рисуем второй раз!
-        }
         
-        // Также проверка на случай, если Realtime пришел раньше ответа insert (редкость, но бывает)
-        // Проверяем последние N сообщений в DOM на совпадение контента и времени
-        const lastBubbles = Array.from(document.querySelectorAll('.message-bubble')).slice(-5);
-        const isDuplicate = lastBubbles.some(b => b.textContent === msg.content);
-        if(isDuplicate && Date.now() - new Date(msg.created_at).getTime() < 2000) {
-             return; // Похоже на дубль недавнего сообщения
+        // Ищем существующее временное сообщение с тем же текстом
+        const existingTemp = document.querySelector(`.message-bubble[data-temp-content="${escapeAttr(msg.content)}"]`);
+        
+        if (existingTemp) {
+            console.log("Replacing temp message with real one:", msg.id);
+            // Удаляем временное
+            existingTemp.remove();
+            
+            // Создаем новый элемент с РЕАЛЬНЫМ ID
+            const isMine = true;
+            const div = document.createElement('div');
+            div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
+            div.setAttribute('data-real-id', msg.id);
+            div.innerHTML = renderMessageContent(msg.content); // Используем нашу новую функцию рендера
+            
+            els.messagesContainer.appendChild(div);
+            scrollToBottom();
+            return; // Выходим, чтобы не рисовать второй раз ниже
+        }
+
+        // Если временного нет, проверяем, нет ли уже реального сообщения с таким ID
+        const existingReal = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
+        if (existingReal) {
+            return; // Уже есть, пропускаем
         }
     }
 
+    // 2. Стандартная логика для ЧУЖИХ сообщений или новых моих
     const isMine = msg.sender_id === currentUser.id;
     const div = document.createElement('div');
     div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
     
-    // ВАЖНО: Добавляем атрибуты для отслеживания
-    if (msg.id.startsWith('temp-')) {
-        div.setAttribute('data-temp-id', msg.id);
+    if (!isMine) {
+        // Для чужих сообщений сразу ставим реальный ID
+        div.setAttribute('data-real-id', msg.id);
     } else {
+        // Для моих, если они пришли впервые (без temp), тоже реальный ID
         div.setAttribute('data-real-id', msg.id);
     }
     
-    div.textContent = msg.content;
+    div.innerHTML = renderMessageContent(msg.content);
     els.messagesContainer.appendChild(div);
+}
+
+// Вспомогательная функция для безопасного экранирования атрибутов
+function escapeAttr(str) {
+    return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Вынесем логику контента в отдельную функцию, чтобы не дублировать код
+function renderMessageContent(content) {
+    let contentHtml = '';
+    try {
+        const parsed = JSON.parse(content);
+        if (parsed.url && parsed.type) {
+            contentHtml = renderMediaBubble(parsed);
+        } else {
+            contentHtml = `<span>${escapeHtml(content)}</span>`;
+        }
+    } catch (e) {
+        contentHtml = `<span>${escapeHtml(content)}</span>`;
+    }
+    return contentHtml;
 }
 
         function scrollToBottom() { els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight; }
 
-        async function sendMessage() {
+       async function sendMessage() {
     const text = els.messageInput.value.trim();
     if(!text || !activeChatId) return;
     
@@ -1037,22 +1070,11 @@
         return;
     }
 
-    els.messageInput.value = ''; // Очищаем поле сразу
+    // Очищаем поле ввода сразу (для ощущения скорости)
+    els.messageInput.value = ''; 
 
-    // 1. OPTIMISTIC UPDATE: Рисуем сообщение сами СРАЗУ
-    const tempMsgObj = {
-        id: 'temp-' + Date.now(), // Временный ID
-        content: text,
-        sender_id: currentUser.id,
-        created_at: new Date().toISOString(),
-        chat_id: activeChatId
-    };
-    
-    appendMessageToDOM(tempMsgObj);
-    scrollToBottom();
-
-    // 2. Отправляем в базу
-    const { data, error } = await supabaseClient.from('messages').insert([{ 
+    // Отправляем в базу
+    const { error } = await supabaseClient.from('messages').insert([{ 
         chat_id: activeChatId, 
         sender_id: currentUser.id, 
         content: text 
@@ -1060,14 +1082,9 @@
 
     if(error) {
         alert("Ошибка отправки: " + error.message);
-        // Если ошибка, можно удалить временное сообщение из DOM
-        removeTempMessageById(tempMsgObj.id);
-        els.messageInput.value = text; // Вернуть текст пользователю
-    } else {
-        // Успех! Реальный объект пришел из базы.
-        // Теперь мы можем обновить временный ID на реальный, чтобы Realtime не создал дубликат
-        updateTempMessageId(tempMsgObj.id, data[0].id);
+        els.messageInput.value = text; // Возвращаем текст при ошибке
     }
+    // Всё! Реалтайм сам подтянет сообщение и отрисует его.
 }
 // Удаляет временное сообщение из DOM (при ошибке сети)
 function removeTempMessageById(tempId) {
@@ -1489,44 +1506,36 @@ async function sendMediaMessage(jsonContent) {
 // ==========================================
 
 function appendMessageToDOM(msg) {
-    // ... (проверка дубликатов остается прежней) ...
-    if (msg.sender_id === currentUser.id && activeChatId === msg.chat_id) {
-        const existingEl = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
-        if (existingEl) return; 
-    }
-
+    // Создаем элемент
     const isMine = msg.sender_id === currentUser.id;
     const div = document.createElement('div');
     div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
     
-    if (msg.id.startsWith('temp-')) {
-        div.setAttribute('data-temp-id', msg.id);
-    } else {
-        div.setAttribute('data-real-id', msg.id);
-    }
-
-    // ПРОВЕРКА ТИПА КОНТЕНТА
-    let contentHtml = '';
-    try {
-        // Пробуем распарсить как JSON
-        const parsed = JSON.parse(msg.content);
-        
-        if (parsed.url && parsed.type) {
-            // Это медиа сообщение
-            contentHtml = renderMediaBubble(parsed);
-        } else {
-            // Обычный текст (fallback)
-            contentHtml = escapeHtml(msg.content);
-        }
-    } catch (e) {
-        // Не JSON, значит обычный текст
-        contentHtml = escapeHtml(msg.content);
-    }
-
-    div.innerHTML = contentHtml;
+    // Добавляем реальный ID (на случай, если нужно будет удалить это сообщение позже)
+    div.setAttribute('data-real-id', msg.id);
+    
+    // Рендерим контент (текст или медиа)
+    div.innerHTML = renderMessageContent(msg.content);
+    
     els.messagesContainer.appendChild(div);
+    scrollToBottom();
 }
 
+// Вспомогательная функция рендера контента (оставь её как есть, если уже добавлена ранее)
+function renderMessageContent(content) {
+    let contentHtml = '';
+    try {
+        const parsed = JSON.parse(content);
+        if (parsed.url && parsed.type) {
+            contentHtml = renderMediaBubble(parsed);
+        } else {
+            contentHtml = `<span>${escapeHtml(content)}</span>`;
+        }
+    } catch (e) {
+        contentHtml = `<span>${escapeHtml(content)}</span>`;
+    }
+    return contentHtml;
+}
 function renderMediaBubble(mediaObj) {
     const { type, url, caption } = mediaObj;
     let html = '<div class="media-message">';
