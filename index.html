@@ -1332,33 +1332,52 @@ function updateTempMessageId(tempId, realId) {
         }
 
         async function clearChatHistory() {
-            if(!confirm("ВНИМАНИЕ! Все сообщения в этом чате будут удалены безвозвратно. Продолжить?")) return;
+    if(!confirm("ВНИМАНИЕ! Все сообщения будут удалены. Продолжить?")) return;
+    
+    try {
+        const { error } = await supabaseClient.rpc('force_clear_history', { 
+            target_chat_id: activeChatId 
+        });
+
+        if(error) alert("Ошибка: " + error.message);
+        else {
+            alert("История очищена.");
+            els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Чат пуст.</div>';
+            fetchChats();
+        }
+    } catch (err) {
+        alert("Сбой: " + err.message);
+    }
+}
+        async function deleteEntireChat() {
+    if(!confirm("КАТАСТРОФА! Вы собираетесь удалить весь чат, всех участников и историю. Это действие необратимо. Точно удалить?")) return;
+    
+    try {
+        // Вызываем нашу безопасную SQL-функцию
+        const { error } = await supabaseClient.rpc('force_delete_chat', { 
+            target_chat_id: activeChatId 
+        });
+
+        if(error) {
+            console.error("RPC Error:", error);
+            alert("Ошибка удаления: " + error.message);
+        } else {
+            alert("Чат полностью удален.");
             
-            const { error } = await supabaseClient.from('messages').delete().eq('chat_id', activeChatId);
-            if(error) alert("Ошибка очистки: " + error.message);
-            else {
-                alert("История очищена.");
-                els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Чат пуст.</div>';
-                fetchChats(); // Update preview text
-            }
+            // Закрываем модалку и обновляем интерфейс
+            closeChatSettingsModal();
+            activeChatId = null;
+            activeChatData = null;
+            els.activeChatView.classList.add('hidden');
+            els.placeholderView.classList.remove('hidden');
+            fetchChats(); 
         }
 
-        async function deleteEntireChat() {
-            if(!confirm("КАТАСТРОФА! Вы собираетесь удалить весь чат, всех участников и историю. Это действие необратимо. Точно удалить?")) return;
-            
-            // Deleting chat cascades to messages and members due to FK constraints
-            const { error } = await supabaseClient.from('chats').delete().eq('id', activeChatId);
-            if(error) alert("Ошибка удаления: " + error.message);
-            else {
-                alert("Чат удален.");
-                closeChatSettingsModal();
-                activeChatId = null;
-                activeChatData = null;
-                els.activeChatView.classList.add('hidden');
-                els.placeholderView.classList.remove('hidden');
-                fetchChats();
-            }
-        }
+    } catch (err) {
+        console.error(err);
+        alert("Сбой системы: " + err.message);
+    }
+}
         function subscribeToRealtime(chatId) {
     // Отключаемся от старого канала, если он был
     unsubscribeFromRealtime();
