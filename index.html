@@ -200,6 +200,49 @@
             .chat-area { width: 100%; }
             .back-to-chats { display: block !important; }
         }
+        /* Media Attachment Buttons */
+.attach-buttons {
+    display: flex;
+    gap: 8px;
+    margin-right: 10px;
+}
+.attach-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.attach-btn:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: scale(1.1);
+}
+.attach-btn input[type="file"] {
+    display: none; /* Скрываем реальный инпут */
+}
+
+/* Message Bubble Styles for Media */
+.media-message img, .media-message video, .media-message audio {
+    max-width: 100%;
+    border-radius: 12px;
+    margin-top: 5px;
+    display: block;
+}
+.media-message audio {
+    width: 100%;
+    height: 40px;
+}
+.media-caption {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    word-break: break-all;
+}
     </style>
 </head>
 <body class="dark-mode">
@@ -207,7 +250,7 @@
     <!-- 1. Экран Авторизации -->
     <div id="auth-screen">
         <div class="glass-card">
-            <div class="brand-logo"><h1>Xsocial</h1><p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">By Xcortex & Asinhrom</p></div>
+            <div class="brand-logo"><h1>Xsocial v1.1</h1><p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">By Xcortex & Asinhrom</p></div>
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab('login')">Вход</button>
                 <button class="tab-btn" onclick="switchTab('register')">Регистрация</button>
@@ -323,9 +366,21 @@
                 
                 <!-- Input Area (Hidden if Read Only) -->
                 <footer class="input-area" id="input-footer">
-                    <textarea id="message-input" class="message-input" placeholder="Сообщение..." rows="1"></textarea>
-                    <button class="send-btn" onclick="sendMessage()"><i data-feather="send" width="20" height="20"></i></button>
-                </footer>
+    <!-- Кнопки прикрепления -->
+    <div class="attach-buttons">
+        <label class="attach-btn" title="Фото/Видео">
+            <i data-feather="image"></i>
+            <input type="file" accept="image/*,video/*" onchange="handleFileUpload(this, 'media')">
+        </label>
+        <label class="attach-btn" title="Аудио">
+            <i data-feather="mic"></i>
+            <input type="file" accept="audio/*" onchange="handleFileUpload(this, 'voice')">
+        </label>
+    </div>
+
+    <textarea id="message-input" class="message-input" placeholder="Сообщение..." rows="1"></textarea>
+    <button class="send-btn" onclick="sendMessage()"><i data-feather="send" width="20" height="20"></i></button>
+</footer>
                 <!-- Read Only Notice -->
                 <div id="readonly-notice" class="read-only-notice hidden">
                     Только владелец может публиковать сообщения в этом канале.
@@ -425,6 +480,7 @@
         let activeChatId = null;
         let activeChatData = null; 
         let myRoleInActiveChat = 'member'; // owner, admin, member
+        let realtimeChannel = null; // Хранит ссылку на активный канал подписки
         
         let wizardState = {
             step: 1, type: '', name: '', description: '', isPublic: false, channelUsername: '', selectedContacts: []
@@ -874,52 +930,55 @@
         function toggleSidebarMobile(show) { if(window.innerWidth <= 768) { const w = document.getElementById('sidebar-wrapper'); if(show) w.classList.remove('hidden-mobile'); else w.classList.add('hidden-mobile'); } }
 
         async function openChat(chat) {
-            activeChatId = chat.id;
-            activeChatData = chat;
-            renderChatList(); 
-            
-            if(window.innerWidth <= 768) toggleSidebarMobile(false);
+    activeChatId = chat.id;
+    activeChatData = chat;
+    renderChatList(); 
+    
+    if(window.innerWidth <= 768) toggleSidebarMobile(false);
 
-            els.partnerName.textContent = chat.displayName;
-            els.partnerAvatar.textContent = chat.displayName.charAt(0).toUpperCase();
-            
-            // Determine My Role
-            myRoleInActiveChat = 'member';
-            if (chat.owner_id === currentUser.id) {
-                myRoleInActiveChat = 'owner';
-            } else if (chat.type !== 'dm') {
-                // Check chat_members for admin status
-                const { data: membership } = await supabaseClient.from('chat_members').select('role').eq('chat_id', chat.id).eq('user_id', currentUser.id).single();
-                if (membership && membership.role === 'admin') {
-                    myRoleInActiveChat = 'admin';
-                }
-            }
-
-            // Show/Hide Gear Button
-            if (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin') {
-                els.chatSettingsBtn.style.display = 'flex';
-            } else {
-                els.chatSettingsBtn.style.display = 'none';
-            }
-
-            // Handle Channel Permissions UI
-            const isOwnerOrAdmin = (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin');
-            
-            if (chat.type === 'channel' && !isOwnerOrAdmin) {
-                els.inputFooter.classList.add('hidden');
-                els.readonlyNotice.classList.remove('hidden');
-                els.partnerStatus.textContent = "Только чтение";
-            } else {
-                els.inputFooter.classList.remove('hidden');
-                els.readonlyNotice.classList.add('hidden');
-                els.partnerStatus.textContent = "Online";
-            }
-
-            els.placeholderView.classList.add('hidden');
-            els.activeChatView.classList.remove('hidden');
-            
-            await loadMessages(chat.id);
+    els.partnerName.textContent = chat.displayName;
+    els.partnerAvatar.textContent = chat.displayName.charAt(0).toUpperCase();
+    
+    // Determine My Role
+    myRoleInActiveChat = 'member';
+    if (chat.owner_id === currentUser.id) {
+        myRoleInActiveChat = 'owner';
+    } else if (chat.type !== 'dm') {
+        const { data: membership } = await supabaseClient.from('chat_members').select('role').eq('chat_id', chat.id).eq('user_id', currentUser.id).single();
+        if (membership && membership.role === 'admin') {
+            myRoleInActiveChat = 'admin';
         }
+    }
+
+    // Show/Hide Gear Button
+    if (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin') {
+        els.chatSettingsBtn.style.display = 'flex';
+    } else {
+        els.chatSettingsBtn.style.display = 'none';
+    }
+
+    // Handle Channel Permissions UI
+    const isOwnerOrAdmin = (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin');
+    
+    if (chat.type === 'channel' && !isOwnerOrAdmin) {
+        els.inputFooter.classList.add('hidden');
+        els.readonlyNotice.classList.remove('hidden');
+        els.partnerStatus.textContent = "Только чтение";
+    } else {
+        els.inputFooter.classList.remove('hidden');
+        els.readonlyNotice.classList.add('hidden');
+        els.partnerStatus.textContent = "Online";
+    }
+
+    els.placeholderView.classList.add('hidden');
+    els.activeChatView.classList.remove('hidden');
+    
+    // Загружаем историю
+    await loadMessages(chat.id);
+
+    // --- REALTIME SUBSCRIPTION START ---
+    subscribeToRealtime(chat.id);
+}
 
         async function loadMessages(chatId) {
             els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa;">...</div>';
@@ -931,33 +990,99 @@
         }
 
         function appendMessageToDOM(msg) {
-            const isMine = msg.sender_id === currentUser.id;
-            const div = document.createElement('div');
-            div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
-            div.textContent = msg.content;
-            els.messagesContainer.appendChild(div);
+    // ПРОВЕРКА НА ДУБЛИКАТЫ:
+    // Если у нас есть активный чат, и это мое собственное сообщение,
+    // проверяем, не рисовали ли мы его уже вручную (optimistic update).
+    if (msg.sender_id === currentUser.id && activeChatId === msg.chat_id) {
+        // Ищем элемент с таким же реальным ID
+        const existingEl = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
+        if (existingEl) {
+            console.log("Skipping duplicate render for own message:", msg.id);
+            return; // Не рисуем второй раз!
         }
+        
+        // Также проверка на случай, если Realtime пришел раньше ответа insert (редкость, но бывает)
+        // Проверяем последние N сообщений в DOM на совпадение контента и времени
+        const lastBubbles = Array.from(document.querySelectorAll('.message-bubble')).slice(-5);
+        const isDuplicate = lastBubbles.some(b => b.textContent === msg.content);
+        if(isDuplicate && Date.now() - new Date(msg.created_at).getTime() < 2000) {
+             return; // Похоже на дубль недавнего сообщения
+        }
+    }
+
+    const isMine = msg.sender_id === currentUser.id;
+    const div = document.createElement('div');
+    div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
+    
+    // ВАЖНО: Добавляем атрибуты для отслеживания
+    if (msg.id.startsWith('temp-')) {
+        div.setAttribute('data-temp-id', msg.id);
+    } else {
+        div.setAttribute('data-real-id', msg.id);
+    }
+    
+    div.textContent = msg.content;
+    els.messagesContainer.appendChild(div);
+}
 
         function scrollToBottom() { els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight; }
 
         async function sendMessage() {
-            const text = els.messageInput.value.trim();
-            if(!text || !activeChatId) return;
-            
-            if(activeChatData.type === 'channel' && myRoleInActiveChat !== 'owner' && myRoleInActiveChat !== 'admin') {
-                alert("You cannot post in this channel");
-                return;
-            }
+    const text = els.messageInput.value.trim();
+    if(!text || !activeChatId) return;
+    
+    // Проверка прав для канала
+    if(activeChatData.type === 'channel' && myRoleInActiveChat !== 'owner' && myRoleInActiveChat !== 'admin') {
+        alert("You cannot post in this channel");
+        return;
+    }
 
-            const tempMsg = { id: 'temp-'+Date.now(), content: text, sender_id: currentUser.id, created_at: new Date().toISOString() };
-            appendMessageToDOM(tempMsg);
-            scrollToBottom();
-            els.messageInput.value = '';
+    els.messageInput.value = ''; // Очищаем поле сразу
 
-            const { error } = await supabaseClient.from('messages').insert([{ chat_id: activeChatId, sender_id: currentUser.id, content: text }]);
-            if(error) alert("Ошибка отправки"); else fetchChats(); 
-        }
+    // 1. OPTIMISTIC UPDATE: Рисуем сообщение сами СРАЗУ
+    const tempMsgObj = {
+        id: 'temp-' + Date.now(), // Временный ID
+        content: text,
+        sender_id: currentUser.id,
+        created_at: new Date().toISOString(),
+        chat_id: activeChatId
+    };
+    
+    appendMessageToDOM(tempMsgObj);
+    scrollToBottom();
 
+    // 2. Отправляем в базу
+    const { data, error } = await supabaseClient.from('messages').insert([{ 
+        chat_id: activeChatId, 
+        sender_id: currentUser.id, 
+        content: text 
+    }]);
+
+    if(error) {
+        alert("Ошибка отправки: " + error.message);
+        // Если ошибка, можно удалить временное сообщение из DOM
+        removeTempMessageById(tempMsgObj.id);
+        els.messageInput.value = text; // Вернуть текст пользователю
+    } else {
+        // Успех! Реальный объект пришел из базы.
+        // Теперь мы можем обновить временный ID на реальный, чтобы Realtime не создал дубликат
+        updateTempMessageId(tempMsgObj.id, data[0].id);
+    }
+}
+// Удаляет временное сообщение из DOM (при ошибке сети)
+function removeTempMessageById(tempId) {
+    const el = document.querySelector(`.message-bubble[data-temp-id="${tempId}"]`);
+    if(el) el.remove();
+}
+
+// Обновляет ID временного сообщения на реальный, чтобы Realtime его проигнорировал
+function updateTempMessageId(tempId, realId) {
+    const el = document.querySelector(`.message-bubble[data-temp-id="${tempId}"]`);
+    if(el) {
+        el.setAttribute('data-real-id', realId); // Сохраняем реальный ID
+        el.removeAttribute('data-temp-id'); // Убираем временный маркер
+    }
+}
         els.messageInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 
         // ==========================================
@@ -1217,7 +1342,212 @@
                 fetchChats();
             }
         }
+        function subscribeToRealtime(chatId) {
+    // Отключаемся от старого канала, если он был
+    unsubscribeFromRealtime();
 
+    // Создаем новый канал подписки
+    realtimeChannel = supabaseClient
+        .channel(`chat:${chatId}`)
+        .on('postgres_changes', 
+            { event: '*', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, 
+            payload => {
+                console.log("Realtime Update:", payload.eventType);
+                
+                if (payload.eventType === 'INSERT') {
+                    // Новое сообщение пришло
+                    appendMessageToDOM(payload.new);
+                    scrollToBottom();
+                    
+                    // Обновляем превью в списке чатов слева
+                    updateLastMessagePreview(chatId, payload.new.content);
+                } 
+                else if (payload.eventType === 'DELETE') {
+                    // Сообщение удалено (например, очистка истории или модерация)
+                    removeMessageFromDOM(payload.old.id);
+                }
+            }
+        )
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log("Successfully subscribed to Realtime for chat", chatId);
+            }
+        });
+}
+
+function unsubscribeFromRealtime() {
+    if (realtimeChannel) {
+        supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+        console.log("Unsubscribed from Realtime");
+    }
+}
+
+// Вспомогательная функция для обновления текста в сайдбаре
+function updateLastMessagePreview(chatId, content) {
+    const chatIndex = chats.findIndex(c => c.id === chatId);
+    if (chatIndex !== -1) {
+        chats[chatIndex].lastMessageText = content;
+        chats[chatIndex].lastMessageTime = new Date().toISOString();
+        renderChatList(); // Перерисовываем список, чтобы пересортировать по времени
+    }
+}
+
+// Функция удаления пузыря из DOM (для случая DELETE события)
+function removeMessageFromDOM(messageId) {
+    // Так как у нас ID временных сообщений отличается от реальных, 
+    // и мы не храним маппинг temp->real, проще всего просто перезагрузить сообщения 
+    // или игнорировать удаление конкретных пузырей в MVP версии.
+    // Для полной точности можно сделать так:
+    /*
+    const bubbles = document.querySelectorAll('.message-bubble');
+    bubbles.forEach(b => {
+       // Логика поиска по ID сложна без data-id атрибутов.
+       // Пока оставим пустой или сделаем полную перезагрузку loadMessages(activeChatId)
+    });
+    */
+   // Самый надежный способ для MVP при удалении: обновить весь список
+   if(activeChatId) loadMessages(activeChatId);
+}
+// ==========================================
+// MEDIA UPLOAD LOGIC
+// ==========================================
+
+async function handleFileUpload(inputElement, fileType) {
+    const file = inputElement.files[0];
+    if (!file || !activeChatId) return;
+
+    // Показываем лоадер в поле ввода (временно)
+    const originalPlaceholder = els.messageInput.placeholder;
+    els.messageInput.value = '';
+    els.messageInput.disabled = true;
+    els.messageInput.placeholder = "Загрузка...";
+
+    try {
+        // 1. Генерируем уникальное имя файла
+        const ext = file.name.split('.').pop();
+        const fileName = `${currentUser.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+        
+        // 2. Загружаем в Supabase Storage
+        const { data, error } = await supabaseClient.storage
+            .from('xmedia')
+            .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (error) throw error;
+
+        // 3. Получаем публичный URL
+        const { data: urlData } = supabaseClient.storage
+            .from('xmedia')
+            .getPublicUrl(fileName);
+        
+        const publicUrl = urlData.publicUrl;
+
+        // 4. Отправляем сообщение со ссылкой на медиа
+        // Мы используем формат JSON внутри текстового поля content, 
+        // чтобы различать обычный текст и медиа.
+        // Пример: {"type":"image","url":"https://..."}
+        const messageContent = JSON.stringify({
+            type: fileType === 'voice' ? 'audio' : (file.type.startsWith('video/') ? 'video' : 'image'),
+            url: publicUrl,
+            caption: "" // Можно добавить подпись позже
+        });
+
+        // Используем ту же логику отправки, что и для текста
+        await sendMediaMessage(messageContent);
+
+    } catch (err) {
+        console.error("Upload Error:", err);
+        alert("Ошибка загрузки файла: " + err.message);
+    } finally {
+        // Восстанавливаем UI
+        els.messageInput.disabled = false;
+        els.messageInput.placeholder = originalPlaceholder;
+        inputElement.value = ''; // Очищаем input file
+    }
+}
+
+async function sendMediaMessage(jsonContent) {
+    if(!jsonContent || !activeChatId) return;
+
+    // Optimistic update для медиа тоже желателен, но сложнее.
+    // Для MVP просто отправляем и ждем Realtime.
+    
+    const { error } = await supabaseClient.from('messages').insert([{
+        chat_id: activeChatId,
+        sender_id: currentUser.id,
+        content: jsonContent
+    }]);
+
+    if(error) alert("Ошибка отправки медиа");
+}
+
+// ==========================================
+// UPDATED RENDER LOGIC FOR MESSAGES
+// ==========================================
+
+function appendMessageToDOM(msg) {
+    // ... (проверка дубликатов остается прежней) ...
+    if (msg.sender_id === currentUser.id && activeChatId === msg.chat_id) {
+        const existingEl = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
+        if (existingEl) return; 
+    }
+
+    const isMine = msg.sender_id === currentUser.id;
+    const div = document.createElement('div');
+    div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
+    
+    if (msg.id.startsWith('temp-')) {
+        div.setAttribute('data-temp-id', msg.id);
+    } else {
+        div.setAttribute('data-real-id', msg.id);
+    }
+
+    // ПРОВЕРКА ТИПА КОНТЕНТА
+    let contentHtml = '';
+    try {
+        // Пробуем распарсить как JSON
+        const parsed = JSON.parse(msg.content);
+        
+        if (parsed.url && parsed.type) {
+            // Это медиа сообщение
+            contentHtml = renderMediaBubble(parsed);
+        } else {
+            // Обычный текст (fallback)
+            contentHtml = escapeHtml(msg.content);
+        }
+    } catch (e) {
+        // Не JSON, значит обычный текст
+        contentHtml = escapeHtml(msg.content);
+    }
+
+    div.innerHTML = contentHtml;
+    els.messagesContainer.appendChild(div);
+}
+
+function renderMediaBubble(mediaObj) {
+    const { type, url, caption } = mediaObj;
+    let html = '<div class="media-message">';
+    
+    if (type === 'image') {
+        html += `<img src="${url}" alt="Image" loading="lazy">`;
+    } else if (type === 'video') {
+        html += `<video controls preload="metadata" poster="">${url}</video>`;
+        // Или просто ссылка, если хочется легкости:
+        // html += `<a href="${url}" target="_blank" style="color:white;">▶️ Видео</a>`;
+    } else if (type === 'audio') {
+        html += `<audio controls>${url}</audio>`;
+    }
+    
+    if (caption) {
+        html += `<div class="media-caption">${escapeHtml(caption)}</div>`;
+    }
+    
+    html += '</div>';
+    return html;
+}
     </script>
 </body>
 </html>
