@@ -49,14 +49,26 @@
         .glass-card { background: var(--surface-color); backdrop-filter: blur(var(--blur-strength)); -webkit-backdrop-filter: blur(var(--blur-strength)); border: 1px solid var(--border-color); border-radius: 24px; padding: 32px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); }
         .brand-logo { text-align: center; margin-bottom: 24px; }
         .brand-logo h1 { font-weight: 700; font-size: 28px; letter-spacing: -0.5px; background: linear-gradient(to right, var(--text-primary), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 24px; background: rgba(0,0,0,0.2); padding: 4px; border-radius: 12px; }
-        body.light-mode .tabs { background: rgba(0,0,0,0.05); }
-        .tab-btn { flex: 1; padding: 10px; background: transparent; color: var(--text-secondary); border-radius: 8px; font-weight: 500; font-size: 14px; }
-        .tab-btn.active { background: var(--accent-color); color: white; box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3); }
-        .form-group { margin-bottom: 16px; }
-        .submit-btn { width: 100%; padding: 14px; background: var(--accent-color); color: white; border-radius: 12px; font-weight: 600; font-size: 16px; margin-top: 8px; }
-        .submit-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-        .error-msg { color: var(--danger-color); font-size: 12px; margin-top: 8px; min-height: 16px; }
+        
+        /* GitHub Button Styles */
+        .github-btn-container { text-align: center; padding: 20px 0; }
+        .btn-github { 
+            width: 100%; 
+            padding: 14px; 
+            background: #24292e; 
+            color: white; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-size: 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px;
+            transition: transform 0.2s, filter 0.2s;
+        }
+        .btn-github:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-github svg { fill: currentColor; }
+        .error-msg { color: var(--danger-color); font-size: 12px; margin-top: 15px; min-height: 16px; text-align: center; }
 
         /* --- Main App Layout --- */
         #main-app { width: 100vw; height: 100vh; display: flex; opacity: 0; transition: opacity 0.5s ease; }
@@ -90,7 +102,8 @@
         .top-bar { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
         .menu-icon-btn { background: transparent; color: var(--text-primary); padding: 5px; }
         .user-profile-mini { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-color), #a855f7); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 14px; flex-shrink: 0; }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-color), #a855f7); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 14px; flex-shrink: 0; overflow: hidden; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
         
         .search-bar-container { padding: 10px 20px; display: flex; gap: 10px; align-items: center; }
         .search-input-wrapper { flex: 1; }
@@ -247,27 +260,20 @@
 </head>
 <body class="dark-mode">
 
-    <!-- 1. Экран Авторизации -->
+    <!-- 1. Экран Авторизации (GitHub Only) -->
     <div id="auth-screen">
         <div class="glass-card">
             <div class="brand-logo"><h1>Xsocial</h1><p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">By Xcortex & Asinhrom</p></div>
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('login')">Вход</button>
-                <button class="tab-btn" onclick="switchTab('register')">Регистрация</button>
+            
+            <div class="github-btn-container">
+                <button type="button" class="btn-github" id="btn-github-login" onclick="signInWithGithub()">
+                    <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
+                    Sign in via GitHub
+                </button>
+                <div class="error-msg" id="auth-error"></div>
             </div>
-            <form id="login-form" onsubmit="handleLogin(event)">
-                <div class="form-group"><input type="email" id="login-email" placeholder="Email" required autocomplete="off"></div>
-                <div class="form-group"><input type="password" id="login-password" placeholder="Пароль" required></div>
-                <button type="submit" class="submit-btn" id="btn-login">Войти</button>
-                <div class="error-msg" id="login-error"></div>
-            </form>
-            <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
-                <div class="form-group"><input type="text" id="reg-username" placeholder="Username (@name)" required minlength="3"></div>
-                <div class="form-group"><input type="email" id="reg-email" placeholder="Email" required></div>
-                <div class="form-group"><input type="password" id="reg-password" placeholder="Password" required minlength="6"></div>
-                <button type="submit" class="submit-btn" id="btn-register">Зарегистрироваться</button>
-                <div class="error-msg" id="register-error"></div>
-            </form>
         </div>
     </div>
 
@@ -303,11 +309,9 @@
                 <div class="setting-section">
                     <div class="section-title">Профиль</div>
                     <button class="action-btn" onclick="openEditModal('username')"><i data-feather="at-sign" width="16"></i> Изменить Username</button>
-                    <button class="action-btn" onclick="openEditModal('email')"><i data-feather="mail" width="16"></i> Изменить Email</button>
                     <button class="action-btn" onclick="openEditModal('phone')"><i data-feather="phone" width="16"></i> Добавить / Сменить Телефон</button>
-                    <button class="action-btn" onclick="openEditModal('password')"><i data-feather="lock" width="16"></i> Сменить Пароль</button>
+                    <button class="action-btn logout-btn-full" onclick="handleLogout()"><i data-feather="log-out" width="16"></i> Выйти из аккаунта</button>
                 </div>
-                <button class="action-btn logout-btn-full" onclick="handleLogout()"><i data-feather="log-out" width="16"></i> Выйти из аккаунта</button>
             </div>
 
             <!-- Основной контент сайдбара -->
@@ -481,12 +485,12 @@
         let activeChatData = null; 
         let myRoleInActiveChat = 'member'; // owner, admin, member
         let realtimeChannel = null; // Хранит ссылку на активный канал подписки
+        
         // Кэш сообщений: { chatId: [array_of_messages] }
-let messageCache = {}; 
+        let messageCache = {}; 
 
-// Кэш профилей пользователей: { userId: { username, avatar_url } }
-// Это нужно, чтобы не тянуть имена каждый раз при открытии чата или поиске
-let profileCache = {}; 
+        // Кэш профилей пользователей: { userId: { username, avatar_url } }
+        let profileCache = {}; 
         
         let wizardState = {
             step: 1, type: '', name: '', description: '', isPublic: false, channelUsername: '', selectedContacts: []
@@ -519,82 +523,132 @@ let profileCache = {};
             myAvatar: document.getElementById('my-avatar'),
             chatSettingsBtn: document.getElementById('chat-settings-btn'),
             chatSettingsModal: document.getElementById('chat-settings-modal'),
-            chatSettingsBody: document.getElementById('chat-settings-body')
+            chatSettingsBody: document.getElementById('chat-settings-body'),
+            githubBtn: document.getElementById('btn-github-login'),
+            authError: document.getElementById('auth-error')
         };
 
-        window.onload = () => {
+        window.onload = async () => {
             feather.replace();
             try {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                supabaseClient.auth.onAuthStateChange((event, session) => {
+                
+                // Слушаем изменения состояния авторизации
+                supabaseClient.auth.onAuthStateChange(async (event, session) => {
                     if (session && session.user) {
-                        currentUser = session.user;
-                        loadUserData(session.user.id);
+                        await initUserSession(session.user);
                     } else {
                         currentUser = null;
+                        currentProfile = null;
                         showAuthScreen();
                     }
                 });
-            } catch (e) { console.error("Init Error", e); }
+
+                // Проверка текущей сессии при первой загрузке
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    await initUserSession(session.user);
+                } else {
+                    showAuthScreen();
+                }
+
+            } catch (e) { 
+                console.error("Init Error", e); 
+                showAuthScreen();
+            }
         };
 
-        function showAuthScreen() { els.authScreen.classList.remove('hidden'); els.mainApp.classList.add('hidden'); els.mainApp.classList.remove('visible'); }
-        function showMainApp() { els.authScreen.classList.add('hidden'); els.mainApp.classList.remove('hidden'); setTimeout(() => els.mainApp.classList.add('visible'), 100); }
+        function showAuthScreen() { 
+            els.authScreen.classList.remove('hidden'); 
+            els.mainApp.classList.add('hidden'); 
+            els.mainApp.classList.remove('visible'); 
+        }
+        
+        function showMainApp() { 
+            els.authScreen.classList.add('hidden'); 
+            els.mainApp.classList.remove('hidden'); 
+            setTimeout(() => els.mainApp.classList.add('visible'), 100); 
+        }
 
-        function switchTab(tab) {
-            const tabs = document.querySelectorAll('.tab-btn');
-            tabs.forEach(t => t.classList.remove('active'));
-            if (tab === 'login') {
-                tabs[0].classList.add('active');
-                document.getElementById('login-form').classList.remove('hidden');
-                document.getElementById('register-form').classList.add('hidden');
-            } else {
-                tabs[1].classList.add('active');
-                document.getElementById('login-form').classList.add('hidden');
-                document.getElementById('register-form').classList.remove('hidden');
+        // ==========================================
+        // AUTHENTICATION LOGIC (GITHUB ONLY)
+        // ==========================================
+
+        async function signInWithGithub() {
+            if(!els.githubBtn || !els.authError) return;
+            
+            els.githubBtn.disabled = true;
+            els.githubBtn.innerHTML = '<div class="loader"></div> Connecting...';
+            els.authError.textContent = "";
+
+            try {
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'github',
+                    options: {
+                        redirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+
+                if (error) throw error;
+                
+                // Страница перезагрузится или редирект произойдет автоматически
+                
+            } catch (err) {
+                console.error("GitHub Login Error:", err);
+                els.authError.textContent = "Ошибка входа: " + err.message;
+                els.githubBtn.disabled = false;
+                els.githubBtn.innerHTML = `<svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg> Sign in via GitHub`;
             }
         }
 
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const btn = document.getElementById('btn-login');
-            setLoading(btn, true);
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) { document.getElementById('login-error').textContent = error.message; setLoading(btn, false); }
+        async function initUserSession(user) {
+            currentUser = user;
+            
+            // 1. Проверяем, есть ли профиль в нашей таблице 'profiles'
+            const { data: existingProfile, error: profileError } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', user.id)
+                .single();
+
+            if (existingProfile) {
+                // Пользователь существует, просто загружаем его
+                currentProfile = existingProfile;
+                applySavedTheme(currentProfile.theme_mode, currentProfile.accent_color);
+                updateUI();
+                fetchChats();
+            } else {
+                // Новый пользователь (первый вход через GitHub)
+                await createNewGithubProfile(user);
+            }
         }
 
-        async function handleRegister(e) {
-            e.preventDefault();
-            const username = document.getElementById('reg-username').value.trim();
-            const email = document.getElementById('reg-email').value;
-            const password = document.getElementById('reg-password').value;
-            const btn = document.getElementById('btn-register');
-            setLoading(btn, true);
-            const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { username } } });
-            if (error) { document.getElementById('register-error').textContent = error.message; setLoading(btn, false); return; }
-            if (data.user && data.session) {
-                await createProfile(data.user.id, username);
-                showMainApp();
-            } else { alert("Check email"); setLoading(btn, false); switchTab('login'); }
-        }
+        async function createNewGithubProfile(user) {
+            const meta = user.user_metadata || {};
+            
+            // Генерируем username
+            let username = meta.preferred_username || meta.full_name?.split(' ')[0] || 'User_' + Math.floor(Math.random()*1000);
+            username = username.replace(/[^a-zA-Z0-9_]/g, ''); 
 
-        async function createProfile(userId, username) {
-            await supabaseClient.from('profiles').upsert([{ id: userId, username }]);
-        }
+            const newProfileData = {
+                id: user.id,
+                username: username,
+                theme_mode: 'dark',
+                accent_color: '#6366f1',
+                phone_number: null,
+                avatar_url: meta.avatar_url || null
+            };
 
-        async function loadUserData(userId) {
-            const { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', userId).single();
+            const { error } = await supabaseClient.from('profiles').insert([newProfileData]);
+            
             if (error) {
-                const tempName = "User_" + Math.floor(Math.random()*1000);
-                await createProfile(userId, tempName);
-                const retry = await supabaseClient.from('profiles').select('*').eq('id', userId).single();
-                if(retry.data) { currentProfile = retry.data; applySavedTheme(currentProfile.theme_mode, currentProfile.accent_color); updateUI(); fetchChats(); }
+                console.error("Failed to create profile", error);
+                alert("Не удалось создать профиль. Попробуйте снова.");
                 return;
             }
-            currentProfile = profile;
-            applySavedTheme(profile.theme_mode, profile.accent_color);
+
+            currentProfile = newProfileData;
+            applySavedTheme(newProfileData.theme_mode, newProfileData.accent_color);
             updateUI();
             fetchChats();
         }
@@ -602,16 +656,17 @@ let profileCache = {};
         function updateUI() {
             if(!currentProfile) return;
             els.myUsername.textContent = "@" + currentProfile.username;
-            els.myAvatar.textContent = currentProfile.username.charAt(0).toUpperCase();
+            
+            if (currentProfile.avatar_url) {
+                els.myAvatar.innerHTML = `<img src="${currentProfile.avatar_url}" alt="avatar">`;
+            } else {
+                els.myAvatar.textContent = currentProfile.username.charAt(0).toUpperCase();
+            }
+            
             showMainApp();
         }
 
-        function setLoading(btn, isLoading) {
-            if(isLoading) { btn.disabled = true; btn.innerHTML = '<div class="loader"></div>'; }
-            else { btn.disabled = false; if(btn.id==='btn-login') btn.textContent='Войти'; if(btn.id==='btn-register') btn.textContent='Зарегистрироваться'; }
-        }
-
-        // Settings & Theme Logic (Same as before)
+        // Settings & Theme Logic
         function toggleSettings(show) { if(show) els.settingsPanel.classList.add('open'); else els.settingsPanel.classList.remove('open'); }
         function toggleThemeMode(isDark) { if(isDark) document.body.classList.remove('light-mode'); else document.body.classList.add('light-mode'); savePreference('theme_mode', isDark?'dark':'light'); }
         function setAccentColor(color) { document.documentElement.style.setProperty('--accent-color', color); document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('selected')); event.target.classList.add('selected'); savePreference('accent_color', color); }
@@ -622,15 +677,13 @@ let profileCache = {};
         function hexToRgb(hex) { const r=/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex); return r ? `${parseInt(r[1],16)}, ${parseInt(r[2],16)}, ${parseInt(r[3],16)}` : null; }
         async function savePreference(key, value) { if(!currentUser) return; await supabaseClient.from('profiles').update({ [key]: value }).eq('id', currentUser.id); }
 
-        // Edit Profile Modals (Same as before)
+        // Edit Profile Modals
         function openEditModal(type) {
             const container = document.getElementById('edit-form-container');
             const title = document.getElementById('edit-modal-title');
             let html = '';
             if(type === 'username') { title.innerText="Сменить Username"; html=`<div class="form-group"><input type="text" id="new-username" placeholder="@username" value="${currentProfile.username}" required></div><button class="submit-btn" onclick="saveProfileField('username', document.getElementById('new-username').value)">Сохранить</button>`; }
-            else if (type === 'email') { title.innerText="Сменить Email"; html=`<div class="form-group"><input type="email" id="new-email" placeholder="Новый email" required></div><small style="color:var(--text-secondary); display:block; margin-bottom:10px;">⚠️ Требуется подтверждение!</small><button class="submit-btn" onclick="changeAuthEmail(document.getElementById('new-email').value)">Отправить код</button>`; }
             else if (type === 'phone') { title.innerText="Номер телефона"; html=`<div class="form-group"><input type="tel" id="new-phone" placeholder="+7 999 000 00 00" value="${currentProfile.phone_number || ''}"></div><button class="submit-btn" onclick="saveProfileField('phone_number', document.getElementById('new-phone').value)">Сохранить</button>`; }
-            else if (type === 'password') { title.innerText="Сменить Пароль"; html=`<div class="form-group"><input type="password" id="new-pass-1" placeholder="Новый пароль" required minlength="6"></div><div class="form-group"><input type="password" id="new-pass-2" placeholder="Подтвердите" required></div><button class="submit-btn" onclick="changeAuthPassword()">Сохранить</button>`; }
             container.innerHTML = html;
             els.editModal.classList.add('active');
         }
@@ -640,12 +693,10 @@ let profileCache = {};
             const { error } = await supabaseClient.from('profiles').update({ [field]: value }).eq('id', currentUser.id);
             if(error) alert("Ошибка: " + error.message); else { alert("Сохранено!"); currentProfile[field]=value; updateUI(); closeEditModal(); }
         }
-        async function changeAuthEmail(newEmail) { if(!newEmail) return; const { error } = await supabaseClient.auth.updateUser({ email: newEmail }); if(error) alert(error.message); else alert("Письмо отправлено."); closeEditModal(); }
-        async function changeAuthPassword() { const p1=document.getElementById('new-pass-1').value; const p2=document.getElementById('new-pass-2').value; if(p1!==p2) return alert("Не совпадают!"); const { error } = await supabaseClient.auth.updateUser({ password: p1 }); if(error) alert(error.message); else alert("Пароль изменен!"); closeEditModal(); }
         async function handleLogout() { await supabaseClient.auth.signOut(); location.reload(); }
 
         // ==========================================
-        // CHAT LIST LOGIC (FIXED RECURSION ISSUE)
+        // CHAT LIST LOGIC
         // ==========================================
         async function fetchChats() {
             if (!currentUser || !supabaseClient) return;
@@ -703,140 +754,98 @@ let profileCache = {};
             }));
             
             renderChatList();
-            // ... внутри fetchChats, после chats = finalChats.map(...) ...
 
-// Собираем все уникальные ID партнеров из DM чатов
-const partnerIds = [];
-chats.forEach(c => {
-    if (c.type === 'dm' && c.partnerId) {
-        partnerIds.push(c.partnerId);
-    }
-});
-const uniquePartnerIds = [...new Set(partnerIds)];
+            // Load profiles for DM partners
+            const partnerIds = [];
+            chats.forEach(c => {
+                if (c.type === 'dm' && c.partnerId) {
+                    partnerIds.push(c.partnerId);
+                }
+            });
+            const uniquePartnerIds = [...new Set(partnerIds)];
 
-let profilesMap = {};
+            let profilesMap = {};
 
-// Делаем ОДИН запрос за всеми именами сразу
-if (uniquePartnerIds.length > 0) {
-    const { data: profiles, error } = await supabaseClient
-        .from('profiles')
-        .select('id, username')
-        .in('id', uniquePartnerIds); // <-- Магия IN
-        
-    if (!error && profiles) {
-        profiles.forEach(p => {
-            profilesMap[p.id] = p.username;
-        });
-    }
-}
+            if (uniquePartnerIds.length > 0) {
+                const { data: profiles, error } = await supabaseClient
+                    .from('profiles')
+                    .select('id, username, avatar_url')
+                    .in('id', uniquePartnerIds);
+                    
+                if (!error && profiles) {
+                    profiles.forEach(p => {
+                        profilesMap[p.id] = p;
+                    });
+                }
+            }
 
-// Обновляем displayName в нашем локальном массиве chats
-chats.forEach(c => {
-    if (c.type === 'dm' && c.partnerId && profilesMap[c.partnerId]) {
-        c.displayName = "@" + profilesMap[c.partnerId];
-    } else if (c.type === 'dm') {
-        c.displayName = "Unknown User";
-    }
-});
+            chats.forEach(c => {
+                if (c.type === 'dm' && c.partnerId && profilesMap[c.partnerId]) {
+                    c.displayName = "@" + profilesMap[c.partnerId].username;
+                    c.partnerAvatarUrl = profilesMap[c.partnerId].avatar_url;
+                } else if (c.type === 'dm') {
+                    c.displayName = "Unknown User";
+                }
+            });
 
-renderChatList(); // Теперь рендер будет мгновенным, так как данные уже есть
+            renderChatList();
         }
 
         function renderChatList() {
-    els.chatListEl.innerHTML = '';
-    if (chats.length === 0) { 
-        els.chatListEl.innerHTML = '<div class="empty-state-sidebar">Нет чатов.</div>'; 
-        return; 
-    }
+            els.chatListEl.innerHTML = '';
+            if (chats.length === 0) { 
+                els.chatListEl.innerHTML = '<div class="empty-state-sidebar">Нет чатов.</div>'; 
+                return; 
+            }
 
-    chats.forEach(chat => {
-        const div = document.createElement('div');
-        div.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
-        div.onclick = () => openChat(chat);
-        
-        // ВАЖНО: Добавляем data-атрибут для поиска элемента позже
-        div.setAttribute('data-chat-id', chat.id);
+            chats.forEach(chat => {
+                const div = document.createElement('div');
+                div.className = `chat-item ${chat.id === activeChatId ? 'active' : ''}`;
+                div.onclick = () => openChat(chat);
+                div.setAttribute('data-chat-id', chat.id);
 
-        let badge = '';
-        if(chat.type === 'group') badge = '<span class="chat-type-badge">GROUP</span>';
-        if(chat.type === 'channel') badge = '<span class="chat-type-badge">CHANNEL</span>';
+                let badge = '';
+                if(chat.type === 'group') badge = '<span class="chat-type-badge">GROUP</span>';
+                if(chat.type === 'channel') badge = '<span class="chat-type-badge">CHANNEL</span>';
 
-        div.innerHTML = `
-            <div class="avatar">${chat.displayName.charAt(0).toUpperCase()}</div>
-            <div class="chat-info">
-                <div class="chat-name">${escapeHtml(chat.displayName)} ${badge}</div>
-                <div class="chat-preview">${escapeHtml(chat.lastMessageText)}</div>
-            </div>
-        `;
-        els.chatListEl.appendChild(div);
-    });
-}
-function updateSingleChatItem(chatId, newContent, timestamp) {
-    // 1. Находим элемент в DOM
-    const item = document.querySelector(`.chat-item[data-chat-id="${chatId}"]`);
-    if (!item) return; // Элемента нет, значит чат еще не загрузился в список
+                let avatarContent = chat.displayName.charAt(0).toUpperCase();
+                if (chat.partnerAvatarUrl) {
+                    avatarContent = `<img src="${chat.partnerAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+                }
 
-    // 2. Обновляем текст превью
-    const previewEl = item.querySelector('.chat-preview');
-    if(previewEl) {
-        // Обрезаем длинный текст
-        const shortText = newContent.length > 30 ? newContent.substring(0, 30) + '...' : newContent;
-        previewEl.textContent = escapeHtml(shortText);
-    }
-
-    // 3. Логика "Поднять наверх"
-    // В реальном времени сложно менять порядок DOM без потери скролла.
-    // Простое решение: удаляем элемент и вставляем первым.
-    // Но это может вызвать мерцание. Более плавное решение:
-    // Просто меняем класс или стиль, если ты используешь CSS Flex/Grid order.
-    
-    // Для MVP сделаем так: пересортируем локальный массив chats и перерисуем СПИСОК ЧАТОВ,
-    // НО ТОЛЬКО ЕСЛИ количество чатов маленькое (< 20).
-    // Если чатов много, лучше оставить старый способ (полный реджет), но он медленный.
-    
-    // КОМПРОМИСС: Обновляем данные в массиве `chats`
-    const chatIndex = chats.findIndex(c => c.id === chatId);
-    if (chatIndex !== -1) {
-        chats[chatIndex].lastMessageText = newContent;
-        chats[chatIndex].lastMessageTime = timestamp;
-        
-        // Вызываем полный рендер, но теперь он использует наши оптимизации? 
-        // Нет, полный рендер все равно дорогой.
-        // Поэтому для максимальной скорости: НЕ делаем полный рендер здесь.
-        // Мы просто обновили DOM выше. Порядок сортировки визуально нарушится,
-        // но исправится при следующем открытии чата или ручном обновлении.
-    }
-}
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
+                div.innerHTML = `
+                    <div class="avatar">${avatarContent}</div>
+                    <div class="chat-info">
+                        <div class="chat-name">${escapeHtml(chat.displayName)} ${badge}</div>
+                        <div class="chat-preview">${escapeHtml(chat.lastMessageText)}</div>
+                    </div>
+                `;
+                els.chatListEl.appendChild(div);
+            });
+        }
 
         function escapeHtml(text) { if(!text) return ""; const map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(text).replace(/[&<>"']/g,m=>map[m]); }
 
-        // Search & Contacts (Same as before)
+        // Search & Contacts
         async function performSearch() {
             const query = els.searchInput.value.trim().toLowerCase();
             if(!query) return;
             els.resultsList.innerHTML = '<div class="no-results">Поиск...</div>';
             els.searchModal.classList.add('active');
             const cleanQuery = query.startsWith('@') ? query.substring(1) : query;
-            const { data: users, error } = await supabaseClient.from('profiles').select('id, username').ilike('username', `%${cleanQuery}%`).neq('id', currentUser.id).limit(10);
+            const { data: users, error } = await supabaseClient.from('profiles').select('id, username, avatar_url').ilike('username', `%${cleanQuery}%`).neq('id', currentUser.id).limit(10);
             if (error) { els.resultsList.innerHTML = `<div class="no-results" style="color:red">Ошибка</div>`; return; }
             if(users && users.length > 0) {
                 els.resultsList.innerHTML = '';
                 users.forEach(user => {
                     const item = document.createElement('div');
                     item.className = 'result-item';
+                    item.style.cssText = "padding:10px; border-bottom:1px solid var(--border-color); cursor:pointer; display:flex; align-items:center; gap:10px;";
                     item.onclick = () => startNewChat(user);
-                    item.innerHTML = `<div class="result-avatar">${user.username.charAt(0).toUpperCase()}</div><div class="result-info"><div class="result-name">@${user.username}</div></div>`;
+                    
+                    let av = user.avatar_url ? `<img src="${user.avatar_url}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;">` : `<div class="avatar" style="width:24px;height:24px;font-size:10px;">${user.username.charAt(0).toUpperCase()}</div>`;
+                    
+                    item.innerHTML = `${av}<div class="result-info"><div class="result-name">@${user.username}</div></div>`;
                     els.resultsList.appendChild(item);
                 });
             } else { els.resultsList.innerHTML = '<div class="no-results">Никого не нашли :(</div>'; }
@@ -851,14 +860,14 @@ function debounce(func, wait) {
             const participants = [currentUser.id, profileData.id];
             const { data: newChat, error } = await supabaseClient.from('chats').insert([{ participants, type: 'dm' }]).select().single();
             if(newChat) {
-                const obj = { ...newChat, partnerId: profileData.id, displayName: "@"+profileData.username, lastMessageText: "", lastMessageTime: new Date().toISOString() };
+                const obj = { ...newChat, partnerId: profileData.id, displayName: "@"+profileData.username, partnerAvatarUrl: profileData.avatar_url, lastMessageText: "", lastMessageTime: new Date().toISOString() };
                 chats.unshift(obj);
                 renderChatList();
                 openChat(obj);
             }
         }
 
-        // Creation Wizard (Same logic)
+        // Creation Wizard
         function openCreateMenu() { els.createMenuModal.classList.add('active'); }
         function closeCreateMenu() { els.createMenuModal.classList.remove('active'); }
         function closeWizard() { els.wizardModal.classList.remove('active'); resetWizard(); }
@@ -959,6 +968,7 @@ function debounce(func, wait) {
             data.forEach(u => {
                 const div = document.createElement('div');
                 div.className = 'contact-item';
+                div.style.cssText = "display:flex; align-items:center; gap:10px; padding:8px; border-bottom:1px solid var(--border-color);";
                 div.innerHTML = `
                     <input type="checkbox" class="contact-checkbox" value="${u.id}" data-name="${u.username}" onchange="updateSelectedCount()">
                     <div class="avatar" style="width:24px;height:24px;font-size:10px;">${u.username.charAt(0).toUpperCase()}</div>
@@ -1012,227 +1022,188 @@ function debounce(func, wait) {
             }, 500);
         }
 
-        // Open Chat & Messaging (Updated with Role Check)
+        // Open Chat & Messaging
         function toggleSidebarMobile(show) { if(window.innerWidth <= 768) { const w = document.getElementById('sidebar-wrapper'); if(show) w.classList.remove('hidden-mobile'); else w.classList.add('hidden-mobile'); } }
 
         async function openChat(chat) {
-    activeChatId = chat.id;
-    activeChatData = chat;
-    renderChatList(); 
-    
-    if(window.innerWidth <= 768) toggleSidebarMobile(false);
+            activeChatId = chat.id;
+            activeChatData = chat;
+            renderChatList(); 
+            
+            if(window.innerWidth <= 768) toggleSidebarMobile(false);
 
-    els.partnerName.textContent = chat.displayName;
-    els.partnerAvatar.textContent = chat.displayName.charAt(0).toUpperCase();
-    
-    // Determine My Role
-    myRoleInActiveChat = 'member';
-    if (chat.owner_id === currentUser.id) {
-        myRoleInActiveChat = 'owner';
-    } else if (chat.type !== 'dm') {
-        const { data: membership } = await supabaseClient.from('chat_members').select('role').eq('chat_id', chat.id).eq('user_id', currentUser.id).single();
-        if (membership && membership.role === 'admin') {
-            myRoleInActiveChat = 'admin';
+            els.partnerName.textContent = chat.displayName;
+            
+            // Update Partner Avatar
+            if (chat.partnerAvatarUrl) {
+                 els.partnerAvatar.innerHTML = `<img src="${chat.partnerAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            } else {
+                 els.partnerAvatar.textContent = chat.displayName.charAt(0).toUpperCase();
+            }
+            
+            // Determine My Role
+            myRoleInActiveChat = 'member';
+            if (chat.owner_id === currentUser.id) {
+                myRoleInActiveChat = 'owner';
+            } else if (chat.type !== 'dm') {
+                const { data: membership } = await supabaseClient.from('chat_members').select('role').eq('chat_id', chat.id).eq('user_id', currentUser.id).single();
+                if (membership && membership.role === 'admin') {
+                    myRoleInActiveChat = 'admin';
+                }
+            }
+
+            // Show/Hide Gear Button
+            if (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin') {
+                els.chatSettingsBtn.style.display = 'flex';
+            } else {
+                els.chatSettingsBtn.style.display = 'none';
+            }
+
+            // Handle Channel Permissions UI
+            const isOwnerOrAdmin = (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin');
+            
+            if (chat.type === 'channel' && !isOwnerOrAdmin) {
+                els.inputFooter.classList.add('hidden');
+                els.readonlyNotice.classList.remove('hidden');
+                els.partnerStatus.textContent = "Только чтение";
+            } else {
+                els.inputFooter.classList.remove('hidden');
+                els.readonlyNotice.classList.add('hidden');
+                els.partnerStatus.textContent = "Online";
+            }
+
+            els.placeholderView.classList.add('hidden');
+            els.activeChatView.classList.remove('hidden');
+            
+            await loadMessages(chat.id);
+            subscribeToRealtime(chat.id);
         }
-    }
 
-    // Show/Hide Gear Button
-    if (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin') {
-        els.chatSettingsBtn.style.display = 'flex';
-    } else {
-        els.chatSettingsBtn.style.display = 'none';
-    }
+        async function loadMessages(chatId) {
+            if (messageCache[chatId]) {
+                renderCachedMessages(chatId);
+                return;
+            }
 
-    // Handle Channel Permissions UI
-    const isOwnerOrAdmin = (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin');
-    
-    if (chat.type === 'channel' && !isOwnerOrAdmin) {
-        els.inputFooter.classList.add('hidden');
-        els.readonlyNotice.classList.remove('hidden');
-        els.partnerStatus.textContent = "Только чтение";
-    } else {
-        els.inputFooter.classList.remove('hidden');
-        els.readonlyNotice.classList.add('hidden');
-        els.partnerStatus.textContent = "Online";
-    }
+            els.messagesContainer.innerHTML = '';
+            
+            const { data, error } = await supabaseClient
+                .from('messages')
+                .select('*')
+                .eq('chat_id', chatId)
+                .order('created_at', { ascending: false })
+                .limit(50);
 
-    els.placeholderView.classList.add('hidden');
-    els.activeChatView.classList.remove('hidden');
-    
-    // Загружаем историю
-    await loadMessages(chat.id);
+            if(error) { 
+                console.error(error); 
+                els.messagesContainer.innerHTML = '<div style="color:red; text-align:center;">Ошибка загрузки</div>'; 
+                return;
+            }
 
-    // --- REALTIME SUBSCRIPTION START ---
-    subscribeToRealtime(chat.id);
-}
+            if (!data || data.length === 0) {
+                messageCache[chatId] = [];
+                els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Начните диалог!</div>';
+                return;
+            }
 
-        
+            const sortedData = data.reverse();
+            messageCache[chatId] = sortedData;
+            renderCachedMessages(chatId);
+        }
 
-async function loadMessages(chatId) {
-    // 1. ПРОВЕРКА КЭША
-    if (messageCache[chatId]) {
-        console.log("Rendering from CACHE for chat:", chatId);
-        renderCachedMessages(chatId);
-        return; // Выходим, не трогая сеть
-    }
+        function renderCachedMessages(chatId) {
+            els.messagesContainer.innerHTML = '';
+            const messages = messageCache[chatId];
+            
+            if(messages.length === 0) {
+                 els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Чат пуст.</div>';
+                 return;
+            }
 
-    // 2. ЗАГРУЗКА ИЗ БАЗЫ (если кэша нет)
-    els.messagesContainer.innerHTML = '';
-    
-    const { data, error } = await supabaseClient
-        .from('messages')
-        .select('*')
-        .eq('chat_id', chatId)
-        .order('created_at', { ascending: false })
-        .limit(50); // Берем больше для первого экрана
+            messages.forEach(msg => appendMessageToDOM(msg));
+            scrollToBottom();
+        }
 
-    if(error) { 
-        console.error(error); 
-        els.messagesContainer.innerHTML = '<div style="color:red; text-align:center;">Ошибка загрузки</div>'; 
-        return;
-    }
-
-    if (!data || data.length === 0) {
-        messageCache[chatId] = []; // Сохраняем пустой массив в кэш
-        els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Начните диалог!</div>';
-        return;
-    }
-
-    // Разворачиваем массив (старые сверху, новые снизу)
-    const sortedData = data.reverse();
-    
-    // 3. СОХРАНЕНИЕ В КЭШ
-    messageCache[chatId] = sortedData;
-
-    // 4. РЕНДЕР
-    renderCachedMessages(chatId);
-}
-
-// Новая вспомогательная функция для отрисовки того, что лежит в кэше
-function renderCachedMessages(chatId) {
-    els.messagesContainer.innerHTML = '';
-    const messages = messageCache[chatId];
-    
-    if(messages.length === 0) {
-         els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Чат пуст.</div>';
-         return;
-    }
-
-    messages.forEach(msg => appendMessageToDOM(msg));
-    scrollToBottom();
-}
-
-function renderCachedMessages(chatId) {
-    els.messagesContainer.innerHTML = '';
-    messageCache[chatId].forEach(msg => appendMessageToDOM(msg));
-    scrollToBottom();
-}
         function appendMessageToDOM(msg) {
-    // 1. Проверка на дубликаты в DOM
-    // Ищем любой элемент с таким же реальным ID
-    const existingElement = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
-    
-    if (existingElement) {
-        console.log("Duplicate detected, skipping render for ID:", msg.id);
-        return; // Выходим, если такое сообщение уже на экране
-    }
+            const existingElement = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
+            if (existingElement) return;
 
-    // 2. Обновляем кэш (если используешь messageCache)
-    if (!messageCache[msg.chat_id]) {
-        messageCache[msg.chat_id] = [];
-    }
-    
-    // Проверяем, нет ли его в массиве кэша (дополнительная защита)
-    const existsInCache = messageCache[msg.chat_id].some(m => m.id === msg.id);
-    if (!existsInCache) {
-        messageCache[msg.chat_id].push(msg);
-    }
+            if (!messageCache[msg.chat_id]) messageCache[msg.chat_id] = [];
+            const existsInCache = messageCache[msg.chat_id].some(m => m.id === msg.id);
+            if (!existsInCache) messageCache[msg.chat_id].push(msg);
 
-    // 3. Рендерим только если это активный чат
-    if (activeChatId !== msg.chat_id) {
-        return; // Не рисуем сообщения других чатов в текущий контейнер
-    }
+            if (activeChatId !== msg.chat_id) return;
 
-    const isMine = msg.sender_id === currentUser.id;
-    const div = document.createElement('div');
-    div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
-    div.setAttribute('data-real-id', msg.id); // Критически важно для проверки выше
-    
-    // Используем твою функцию рендера контента (текст/медиа)
-    div.innerHTML = renderMessageContent(msg.content); 
-    
-    els.messagesContainer.appendChild(div);
-    scrollToBottom();
-}
-
-// Вспомогательная функция для безопасного экранирования атрибутов
-function escapeAttr(str) {
-    return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-// Вынесем логику контента в отдельную функцию, чтобы не дублировать код
-function renderMessageContent(content) {
-    let contentHtml = '';
-    try {
-        const parsed = JSON.parse(content);
-        if (parsed.url && parsed.type) {
-            contentHtml = renderMediaBubble(parsed);
-        } else {
-            contentHtml = `<span>${escapeHtml(content)}</span>`;
+            const isMine = msg.sender_id === currentUser.id;
+            const div = document.createElement('div');
+            div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
+            div.setAttribute('data-real-id', msg.id);
+            div.innerHTML = renderMessageContent(msg.content);
+            
+            els.messagesContainer.appendChild(div);
+            scrollToBottom();
         }
-    } catch (e) {
-        contentHtml = `<span>${escapeHtml(content)}</span>`;
-    }
-    return contentHtml;
-}
+
+        function renderMessageContent(content) {
+            let contentHtml = '';
+            try {
+                const parsed = JSON.parse(content);
+                if (parsed.url && parsed.type) {
+                    contentHtml = renderMediaBubble(parsed);
+                } else {
+                    contentHtml = `<span>${escapeHtml(content)}</span>`;
+                }
+            } catch (e) {
+                contentHtml = `<span>${escapeHtml(content)}</span>`;
+            }
+            return contentHtml;
+        }
+
+        function renderMediaBubble(mediaObj) {
+            const { type, url, caption } = mediaObj;
+            let html = '<div class="media-message">';
+            
+            if (type === 'image') {
+                html += `<img src="${url}" alt="Image" loading="lazy">`;
+            } else if (type === 'video') {
+                html += `<video controls preload="metadata">${url}</video>`;
+            } else if (type === 'audio') {
+                html += `<audio controls>${url}</audio>`;
+            }
+            
+            if (caption) {
+                html += `<div class="media-caption">${escapeHtml(caption)}</div>`;
+            }
+            
+            html += '</div>';
+            return html;
+        }
 
         function scrollToBottom() { els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight; }
 
-       // Замени текущую функцию sendMessage на эту логику
-async function sendMessage() {
-    const text = els.messageInput.value.trim();
-    if(!text || !activeChatId) return;
-    
-    els.messageInput.value = '';
+        async function sendMessage() {
+            const text = els.messageInput.value.trim();
+            if(!text || !activeChatId) return;
+            
+            els.messageInput.value = '';
 
-    try {
-        // Отправляем в базу
-        const { error } = await supabaseClient.from('messages').insert([{ 
-            chat_id: activeChatId, 
-            sender_id: currentUser.id, 
-            content: text 
-        }]);
+            try {
+                const { error } = await supabaseClient.from('messages').insert([{ 
+                    chat_id: activeChatId, 
+                    sender_id: currentUser.id, 
+                    content: text 
+                }]);
 
-        if(error) throw error;
+                if(error) throw error;
+            } catch (err) {
+                alert("Ошибка отправки");
+                els.messageInput.value = text;
+            }
+        }
 
-        // МЫ НЕ РИСУЕМ СООБЩЕНИЕ ЗДЕСЬ ВРУЧНУЮ!
-        // Оно придет через subscribeToRealtime -> appendMessageToDOM
-        // Благодаря защите по ID в appendMessageToDOM, оно нарисуется ровно один раз.
-        
-    } catch (err) {
-        alert("Ошибка отправки");
-        els.messageInput.value = text; // Возвращаем текст при ошибке
-    }
-}
-// Удаляет временное сообщение из DOM (при ошибке сети)
-function removeTempMessageById(tempId) {
-    const el = document.querySelector(`.message-bubble[data-temp-id="${tempId}"]`);
-    if(el) el.remove();
-}
-
-// Обновляет ID временного сообщения на реальный, чтобы Realtime его проигнорировал
-function updateTempMessageId(tempId, realId) {
-    const el = document.querySelector(`.message-bubble[data-temp-id="${tempId}"]`);
-    if(el) {
-        el.setAttribute('data-real-id', realId); // Сохраняем реальный ID
-        el.removeAttribute('data-temp-id'); // Убираем временный маркер
-    }
-}
         els.messageInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 
-        // ==========================================
-        // CHAT SETTINGS ADMIN PANEL LOGIC
-        // ==========================================
+        // Chat Settings Admin Panel
         function openChatSettingsModal() {
             if (!activeChatData) return;
             renderChatSettingsContent();
@@ -1244,124 +1215,114 @@ function updateTempMessageId(tempId, realId) {
         }
 
         async function renderChatSettingsContent() {
-    const body = els.chatSettingsBody;
-    body.innerHTML = '<div style="text-align:center; padding:20px;">Загрузка...</div>';
+            const body = els.chatSettingsBody;
+            body.innerHTML = '<div style="text-align:center; padding:20px;">Загрузка...</div>';
 
-    // 1. Сначала получаем список участников (ID и роли)
-    const { data: membersRaw, error: memErr } = await supabaseClient
-        .from('chat_members')
-        .select('*')
-        .eq('chat_id', activeChatId);
+            const { data: membersRaw, error: memErr } = await supabaseClient
+                .from('chat_members')
+                .select('*')
+                .eq('chat_id', activeChatId);
 
-    if (memErr) {
-        body.innerHTML = `<div style="color:red; text-align:center;">Ошибка загрузки ролей</div>`;
-        return;
-    }
-
-    if (!membersRaw || membersRaw.length === 0) {
-         body.innerHTML = `<div style="text-align:center; color:#aaa;">Нет участников</div>`;
-         return;
-    }
-
-    // 2. Извлекаем все уникальные ID пользователей
-    const userIds = [...new Set(membersRaw.map(m => m.user_id))];
-
-    // 3. Получаем профили этих пользователей одним запросом
-    const { data: profilesData, error: profErr } = await supabaseClient
-        .from('profiles')
-        .select('id, username, avatar_url')
-        .in('id', userIds);
-
-    if (profErr) {
-        console.warn("Profile fetch warning", profErr);
-        // Продолжаем работу даже если профили не загрузились идеально, показывая Unknown
-    }
-
-    // 4. Создаем карту (Map) для быстрого доступа к данным профиля по ID
-    const profileMap = {};
-    if (profilesData) {
-        profilesData.forEach(p => {
-            profileMap[p.id] = p;
-        });
-    }
-
-    // 5. Генерируем HTML, объединяя данные вручную
-    let html = `
-        <div class="setting-section">
-            <div class="section-title">Информация о чате</div>
-            <div class="form-group">
-                <label>Название</label>
-                <input type="text" id="cs-name" value="${activeChatData.name || ''}">
-            </div>
-            <button class="submit-btn" onclick="updateChatName()">Сохранить название</button>
-        </div>
-
-        <div class="setting-section">
-            <div class="section-title">Управление участниками (${membersRaw.length})</div>
-            
-            <!-- Add Member Section -->
-            <div class="add-member-search">
-                <input type="text" id="cs-add-query" placeholder="Поиск пользователя для добавления...">
-                <button class="btn-small" style="margin-top:5px; width:100%;" onclick="searchForAddMember()">Найти</button>
-            </div>
-            <div id="cs-add-results" class="add-member-results hidden"></div>
-
-            <!-- Current Members List -->
-            <div class="member-list" id="cs-members-list">
-    `;
-
-    membersRaw.forEach(m => {
-        const profile = profileMap[m.user_id];
-        const userName = profile ? profile.username : "Unknown User";
-        const roleClass = m.role === 'owner' ? 'owner' : (m.role === 'admin' ? 'admin' : '');
-        const roleLabel = m.role.toUpperCase();
-        
-        let actionsHtml = '';
-        if (m.user_id !== currentUser.id) {
-            if (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin') {
-                if (!(m.role === 'owner' && myRoleInActiveChat !== 'owner')) {
-                     actionsHtml += `<button class="btn-small btn-danger-sm" onclick="kickMember('${m.user_id}')">Kick</button>`;
-                }
-                
-                if (myRoleInActiveChat === 'owner') {
-                    if (m.role === 'member') {
-                        actionsHtml += `<button class="btn-small btn-success-sm" onclick="promoteToAdmin('${m.user_id}')">Make Admin</button>`;
-                    } else if (m.role === 'admin') {
-                        actionsHtml += `<button class="btn-small" onclick="demoteToMember('${m.user_id}')">Demote</button>`;
-                    }
-                }
+            if (memErr) {
+                body.innerHTML = `<div style="color:red; text-align:center;">Ошибка загрузки ролей</div>`;
+                return;
             }
-        } else {
-            actionsHtml = `<span style="font-size:10px; color:var(--text-secondary);">(This is you)</span>`;
+
+            if (!membersRaw || membersRaw.length === 0) {
+                 body.innerHTML = `<div style="text-align:center; color:#aaa;">Нет участников</div>`;
+                 return;
+            }
+
+            const userIds = [...new Set(membersRaw.map(m => m.user_id))];
+
+            const { data: profilesData, error: profErr } = await supabaseClient
+                .from('profiles')
+                .select('id, username, avatar_url')
+                .in('id', userIds);
+
+            const profileMap = {};
+            if (profilesData) {
+                profilesData.forEach(p => {
+                    profileMap[p.id] = p;
+                });
+            }
+
+            let html = `
+                <div class="setting-section">
+                    <div class="section-title">Информация о чате</div>
+                    <div class="form-group">
+                        <label>Название</label>
+                        <input type="text" id="cs-name" value="${activeChatData.name || ''}">
+                    </div>
+                    <button class="submit-btn" onclick="updateChatName()">Сохранить название</button>
+                </div>
+
+                <div class="setting-section">
+                    <div class="section-title">Управление участниками (${membersRaw.length})</div>
+                    
+                    <div class="add-member-search">
+                        <input type="text" id="cs-add-query" placeholder="Поиск пользователя для добавления...">
+                        <button class="btn-small" style="margin-top:5px; width:100%;" onclick="searchForAddMember()">Найти</button>
+                    </div>
+                    <div id="cs-add-results" class="add-member-results hidden"></div>
+
+                    <div class="member-list" id="cs-members-list">
+            `;
+
+            membersRaw.forEach(m => {
+                const profile = profileMap[m.user_id];
+                const userName = profile ? profile.username : "Unknown User";
+                const roleClass = m.role === 'owner' ? 'owner' : (m.role === 'admin' ? 'admin' : '');
+                const roleLabel = m.role.toUpperCase();
+                
+                let actionsHtml = '';
+                if (m.user_id !== currentUser.id) {
+                    if (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin') {
+                        if (!(m.role === 'owner' && myRoleInActiveChat !== 'owner')) {
+                             actionsHtml += `<button class="btn-small btn-danger-sm" onclick="kickMember('${m.user_id}')">Kick</button>`;
+                        }
+                        
+                        if (myRoleInActiveChat === 'owner') {
+                            if (m.role === 'member') {
+                                actionsHtml += `<button class="btn-small btn-success-sm" onclick="promoteToAdmin('${m.user_id}')">Make Admin</button>`;
+                            } else if (m.role === 'admin') {
+                                actionsHtml += `<button class="btn-small" onclick="demoteToMember('${m.user_id}')">Demote</button>`;
+                            }
+                        }
+                    }
+                } else {
+                    actionsHtml = `<span style="font-size:10px; color:var(--text-secondary);">(This is you)</span>`;
+                }
+
+                let avHtml = profile?.avatar_url ? `<img src="${profile.avatar_url}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;">` : `<div class="avatar" style="width:24px;height:24px;font-size:10px;">${userName.charAt(0).toUpperCase()}</div>`;
+
+                html += `
+                    <div class="member-item">
+                        <div class="member-info">
+                            ${avHtml}
+                            <span>@${userName}</span>
+                            <span class="member-role-tag ${roleClass}">${roleLabel}</span>
+                        </div>
+                        <div class="member-actions">
+                            ${actionsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+
+                <div class="danger-zone">
+                    <div class="section-title" style="color:var(--danger-color);">Опасная зона</div>
+                    <button class="danger-btn" onclick="clearChatHistory()">🗑 Очистить историю сообщений</button>
+                    ${myRoleInActiveChat === 'owner' ? `<button class="danger-btn" onclick="deleteEntireChat()">💣 Удалить чат навсегда</button>` : ''}
+                </div>
+            `;
+
+            body.innerHTML = html;
         }
-
-        html += `
-            <div class="member-item">
-                <div class="member-info">
-                    <div class="avatar" style="width:24px;height:24px;font-size:10px;">${userName.charAt(0).toUpperCase()}</div>
-                    <span>@${userName}</span>
-                    <span class="member-role-tag ${roleClass}">${roleLabel}</span>
-                </div>
-                <div class="member-actions">
-                    ${actionsHtml}
-                </div>
-            </div>
-        `;
-    });
-
-    html += `
-            </div>
-        </div>
-
-        <div class="danger-zone">
-            <div class="section-title" style="color:var(--danger-color);">Опасная зона</div>
-            <button class="danger-btn" onclick="clearChatHistory()">🗑 Очистить историю сообщений</button>
-            ${myRoleInActiveChat === 'owner' ? `<button class="danger-btn" onclick="deleteEntireChat()">💣 Удалить чат навсегда</button>` : ''}
-        </div>
-    `;
-
-    body.innerHTML = html;
-}
 
         async function updateChatName() {
             const newName = document.getElementById('cs-name').value;
@@ -1375,7 +1336,7 @@ function updateTempMessageId(tempId, realId) {
                 renderChatList();
                 els.partnerName.textContent = newName;
                 alert("Название обновлено!");
-                renderChatSettingsContent(); // Refresh list
+                renderChatSettingsContent();
             }
         }
 
@@ -1410,7 +1371,6 @@ function updateTempMessageId(tempId, realId) {
         }
 
         async function addMember(userId, username) {
-            // Check if already exists
             const existing = chats.find(c => c.id === activeChatId)?.participants?.includes(userId);
             if(existing) return alert("Пользователь уже в чате");
 
@@ -1418,13 +1378,10 @@ function updateTempMessageId(tempId, realId) {
                 { chat_id: activeChatId, user_id: userId, role: 'member' }
             ]);
             
-            // Also update participants array for legacy support/search
             if(!error) {
-                 await supabaseClient.rpc('add_participant_to_chat', { chat_uuid: activeChatId, user_uuid: userId }); // Optional RPC if we had one, otherwise skip
-                 // Simple way: just refresh UI
                  alert(`@${username} добавлен!`);
                  renderChatSettingsContent();
-                 fetchChats(); // Update sidebar count maybe
+                 fetchChats();
             } else {
                 alert("Ошибка добавления: " + error.message);
             }
@@ -1460,250 +1417,158 @@ function updateTempMessageId(tempId, realId) {
         }
 
         async function clearChatHistory() {
-    if(!confirm("ВНИМАНИЕ! Все сообщения будут удалены. Продолжить?")) return;
-    
-    try {
-        const { error } = await supabaseClient.rpc('force_clear_history', { 
-            target_chat_id: activeChatId 
-        });
-
-        if(error) alert("Ошибка: " + error.message);
-        else {
-            alert("История очищена.");
-            els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Чат пуст.</div>';
-            fetchChats();
-        }
-    } catch (err) {
-        alert("Сбой: " + err.message);
-    }
-}
-        async function deleteEntireChat() {
-    if(!confirm("КАТАСТРОФА! Вы собираетесь удалить весь чат, всех участников и историю. Это действие необратимо. Точно удалить?")) return;
-    
-    try {
-        // Вызываем нашу безопасную SQL-функцию
-        const { error } = await supabaseClient.rpc('force_delete_chat', { 
-            target_chat_id: activeChatId 
-        });
-
-        if(error) {
-            console.error("RPC Error:", error);
-            alert("Ошибка удаления: " + error.message);
-        } else {
-            alert("Чат полностью удален.");
+            if(!confirm("ВНИМАНИЕ! Все сообщения будут удалены. Продолжить?")) return;
             
-            // Закрываем модалку и обновляем интерфейс
-            closeChatSettingsModal();
-            activeChatId = null;
-            activeChatData = null;
-            els.activeChatView.classList.add('hidden');
-            els.placeholderView.classList.remove('hidden');
-            fetchChats(); 
-        }
+            try {
+                const { error } = await supabaseClient.rpc('force_clear_history', { 
+                    target_chat_id: activeChatId 
+                });
 
-    } catch (err) {
-        console.error(err);
-        alert("Сбой системы: " + err.message);
-    }
-}
-        function subscribeToRealtime(chatId) {
-    // Отключаемся от старого канала, если он был
-    unsubscribeFromRealtime();
-
-    // Создаем новый канал подписки
-    realtimeChannel = supabaseClient
-        .channel(`chat:${chatId}`)
-        .on('postgres_changes', 
-            { event: '*', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, 
-            payload => {
-                console.log("Realtime Update:", payload.eventType);
-                
-                if (payload.eventType === 'INSERT') {
-                    // Новое сообщение пришло
-                    appendMessageToDOM(payload.new);
-                    scrollToBottom();
-                    
-                    // Обновляем превью в списке чатов слева
-                    updateLastMessagePreview(chatId, payload.new.content);
-                } 
-                else if (payload.eventType === 'DELETE') {
-                    // Сообщение удалено (например, очистка истории или модерация)
-                    removeMessageFromDOM(payload.old.id);
+                if(error) alert("Ошибка: " + error.message);
+                else {
+                    alert("История очищена.");
+                    els.messagesContainer.innerHTML = '<div style="text-align:center; color:#aaa; padding:20px;">Чат пуст.</div>';
+                    messageCache[activeChatId] = [];
+                    fetchChats();
                 }
+            } catch (err) {
+                alert("Сбой: " + err.message);
             }
-        )
-        .subscribe((status) => {
-            if (status === 'SUBSCRIBED') {
-                console.log("Successfully subscribed to Realtime for chat", chatId);
-            }
-        });
-}
-
-function unsubscribeFromRealtime() {
-    if (realtimeChannel) {
-        supabaseClient.removeChannel(realtimeChannel);
-        realtimeChannel = null;
-        console.log("Unsubscribed from Realtime");
-    }
-}
-
-// Вспомогательная функция для обновления текста в сайдбаре
-function updateLastMessagePreview(chatId, content) {
-    const chatIndex = chats.findIndex(c => c.id === chatId);
-    if (chatIndex !== -1) {
-        chats[chatIndex].lastMessageText = content;
-        chats[chatIndex].lastMessageTime = new Date().toISOString();
-        renderChatList(); // Перерисовываем список, чтобы пересортировать по времени
-    }
-}
-
-// Функция удаления пузыря из DOM (для случая DELETE события)
-function removeMessageFromDOM(messageId) {
-    // Так как у нас ID временных сообщений отличается от реальных, 
-    // и мы не храним маппинг temp->real, проще всего просто перезагрузить сообщения 
-    // или игнорировать удаление конкретных пузырей в MVP версии.
-    // Для полной точности можно сделать так:
-    /*
-    const bubbles = document.querySelectorAll('.message-bubble');
-    bubbles.forEach(b => {
-       // Логика поиска по ID сложна без data-id атрибутов.
-       // Пока оставим пустой или сделаем полную перезагрузку loadMessages(activeChatId)
-    });
-    */
-   // Самый надежный способ для MVP при удалении: обновить весь список
-   if(activeChatId) loadMessages(activeChatId);
-}
-// ==========================================
-// MEDIA UPLOAD LOGIC
-// ==========================================
-
-async function handleFileUpload(inputElement, fileType) {
-    const file = inputElement.files[0];
-    if (!file || !activeChatId) return;
-
-    // Показываем лоадер в поле ввода (временно)
-    const originalPlaceholder = els.messageInput.placeholder;
-    els.messageInput.value = '';
-    els.messageInput.disabled = true;
-    els.messageInput.placeholder = "Загрузка...";
-
-    try {
-        // 1. Генерируем уникальное имя файла
-        const ext = file.name.split('.').pop();
-        const fileName = `${currentUser.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
-        
-        // 2. Загружаем в Supabase Storage
-        const { data, error } = await supabaseClient.storage
-            .from('xmedia')
-            .upload(fileName, file, {
-                cacheControl: '3600',
-                upsert: false
-            });
-
-        if (error) throw error;
-
-        // 3. Получаем публичный URL
-        const { data: urlData } = supabaseClient.storage
-            .from('xmedia')
-            .getPublicUrl(fileName);
-        
-        const publicUrl = urlData.publicUrl;
-
-        // 4. Отправляем сообщение со ссылкой на медиа
-        // Мы используем формат JSON внутри текстового поля content, 
-        // чтобы различать обычный текст и медиа.
-        // Пример: {"type":"image","url":"https://..."}
-        const messageContent = JSON.stringify({
-            type: fileType === 'voice' ? 'audio' : (file.type.startsWith('video/') ? 'video' : 'image'),
-            url: publicUrl,
-            caption: "" // Можно добавить подпись позже
-        });
-
-        // Используем ту же логику отправки, что и для текста
-        await sendMediaMessage(messageContent);
-
-    } catch (err) {
-        console.error("Upload Error:", err);
-        alert("Ошибка загрузки файла: " + err.message);
-    } finally {
-        // Восстанавливаем UI
-        els.messageInput.disabled = false;
-        els.messageInput.placeholder = originalPlaceholder;
-        inputElement.value = ''; // Очищаем input file
-    }
-}
-
-async function sendMediaMessage(jsonContent) {
-    if(!jsonContent || !activeChatId) return;
-
-    // Optimistic update для медиа тоже желателен, но сложнее.
-    // Для MVP просто отправляем и ждем Realtime.
-    
-    const { error } = await supabaseClient.from('messages').insert([{
-        chat_id: activeChatId,
-        sender_id: currentUser.id,
-        content: jsonContent
-    }]);
-
-    if(error) alert("Ошибка отправки медиа");
-}
-
-// ==========================================
-// UPDATED RENDER LOGIC FOR MESSAGES
-// ==========================================
-
-function appendMessageToDOM(msg) {
-    // Создаем элемент
-    const isMine = msg.sender_id === currentUser.id;
-    const div = document.createElement('div');
-    div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
-    
-    // Добавляем реальный ID (на случай, если нужно будет удалить это сообщение позже)
-    div.setAttribute('data-real-id', msg.id);
-    
-    // Рендерим контент (текст или медиа)
-    div.innerHTML = renderMessageContent(msg.content);
-    
-    els.messagesContainer.appendChild(div);
-    scrollToBottom();
-}
-
-// Вспомогательная функция рендера контента (оставь её как есть, если уже добавлена ранее)
-function renderMessageContent(content) {
-    let contentHtml = '';
-    try {
-        const parsed = JSON.parse(content);
-        if (parsed.url && parsed.type) {
-            contentHtml = renderMediaBubble(parsed);
-        } else {
-            contentHtml = `<span>${escapeHtml(content)}</span>`;
         }
-    } catch (e) {
-        contentHtml = `<span>${escapeHtml(content)}</span>`;
-    }
-    return contentHtml;
-}
-function renderMediaBubble(mediaObj) {
-    const { type, url, caption } = mediaObj;
-    let html = '<div class="media-message">';
-    
-    if (type === 'image') {
-        html += `<img src="${url}" alt="Image" loading="lazy">`;
-    } else if (type === 'video') {
-        html += `<video controls preload="metadata" poster="">${url}</video>`;
-        // Или просто ссылка, если хочется легкости:
-        // html += `<a href="${url}" target="_blank" style="color:white;">▶️ Видео</a>`;
-    } else if (type === 'audio') {
-        html += `<audio controls>${url}</audio>`;
-    }
-    
-    if (caption) {
-        html += `<div class="media-caption">${escapeHtml(caption)}</div>`;
-    }
-    
-    html += '</div>';
-    return html;
-}
+
+        async function deleteEntireChat() {
+            if(!confirm("КАТАСТРОФА! Вы собираетесь удалить весь чат, всех участников и историю. Это действие необратимо. Точно удалить?")) return;
+            
+            try {
+                const { error } = await supabaseClient.rpc('force_delete_chat', { 
+                    target_chat_id: activeChatId 
+                });
+
+                if(error) {
+                    console.error("RPC Error:", error);
+                    alert("Ошибка удаления: " + error.message);
+                } else {
+                    alert("Чат полностью удален.");
+                    closeChatSettingsModal();
+                    activeChatId = null;
+                    activeChatData = null;
+                    els.activeChatView.classList.add('hidden');
+                    els.placeholderView.classList.remove('hidden');
+                    fetchChats(); 
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert("Сбой системы: " + err.message);
+            }
+        }
+
+        function subscribeToRealtime(chatId) {
+            unsubscribeFromRealtime();
+
+            realtimeChannel = supabaseClient
+                .channel(`chat:${chatId}`)
+                .on('postgres_changes', 
+                    { event: '*', schema: 'public', table: 'messages', filter: `chat_id=eq.${chatId}` }, 
+                    payload => {
+                        console.log("Realtime Update:", payload.eventType);
+                        
+                        if (payload.eventType === 'INSERT') {
+                            appendMessageToDOM(payload.new);
+                            scrollToBottom();
+                            updateLastMessagePreview(chatId, payload.new.content);
+                        } 
+                        else if (payload.eventType === 'DELETE') {
+                            removeMessageFromDOM(payload.old.id);
+                        }
+                    }
+                )
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') {
+                        console.log("Successfully subscribed to Realtime for chat", chatId);
+                    }
+                });
+        }
+
+        function unsubscribeFromRealtime() {
+            if (realtimeChannel) {
+                supabaseClient.removeChannel(realtimeChannel);
+                realtimeChannel = null;
+                console.log("Unsubscribed from Realtime");
+            }
+        }
+
+        function updateLastMessagePreview(chatId, content) {
+            const chatIndex = chats.findIndex(c => c.id === chatId);
+            if (chatIndex !== -1) {
+                chats[chatIndex].lastMessageText = content;
+                chats[chatIndex].lastMessageTime = new Date().toISOString();
+                renderChatList();
+            }
+        }
+
+        function removeMessageFromDOM(messageId) {
+           if(activeChatId) loadMessages(activeChatId);
+        }
+
+        // Media Upload Logic
+        async function handleFileUpload(inputElement, fileType) {
+            const file = inputElement.files[0];
+            if (!file || !activeChatId) return;
+
+            const originalPlaceholder = els.messageInput.placeholder;
+            els.messageInput.value = '';
+            els.messageInput.disabled = true;
+            els.messageInput.placeholder = "Загрузка...";
+
+            try {
+                const ext = file.name.split('.').pop();
+                const fileName = `${currentUser.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                
+                const { data, error } = await supabaseClient.storage
+                    .from('xmedia')
+                    .upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+
+                if (error) throw error;
+
+                const { data: urlData } = supabaseClient.storage
+                    .from('xmedia')
+                    .getPublicUrl(fileName);
+                
+                const publicUrl = urlData.publicUrl;
+
+                const messageContent = JSON.stringify({
+                    type: fileType === 'voice' ? 'audio' : (file.type.startsWith('video/') ? 'video' : 'image'),
+                    url: publicUrl,
+                    caption: ""
+                });
+
+                await sendMediaMessage(messageContent);
+
+            } catch (err) {
+                console.error("Upload Error:", err);
+                alert("Ошибка загрузки файла: " + err.message);
+            } finally {
+                els.messageInput.disabled = false;
+                els.messageInput.placeholder = originalPlaceholder;
+                inputElement.value = '';
+            }
+        }
+
+        async function sendMediaMessage(jsonContent) {
+            if(!jsonContent || !activeChatId) return;
+
+            const { error } = await supabaseClient.from('messages').insert([{
+                chat_id: activeChatId,
+                sender_id: currentUser.id,
+                content: jsonContent
+            }]);
+
+            if(error) alert("Ошибка отправки медиа");
+        }
     </script>
 </body>
 </html>
