@@ -304,6 +304,81 @@
         -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS */
     }
 }
+        /* =========================================
+   MOBILE FIXES FOR XSOCIAL (Artem's Patch)
+   ========================================= */
+
+@media (max-width: 768px) {
+    
+    /* 1. ФИКС ВЫСОТЫ СТРАНИЦЫ 
+       Используем dvh (Dynamic Viewport Height), чтобы игнорировать адресную строку браузера.
+       Fallback на vh для старых браузеров. */
+    #main-app {
+        height: 100vh; 
+        height: 100dvh; /* Критически важно для телефонов! */
+        overflow: hidden;
+    }
+
+    /* 2. СКРЫВАЕМ СЕРУЮ ПОЛОСУ (Settings Panel) ОТ МЕШАТЕЛЬСТВА
+       Убедимся, что панель настроек не лежит поверх чата, когда закрыта */
+    .settings-panel {
+        position: fixed; /* Меняем с absolute на fixed, чтобы она была привязана к экрану */
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 50;
+        transform: translateX(-100%); /* Прячем влево полностью */
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    /* Когда панель открыта (класс .open), она появляется */
+    .settings-panel.open {
+        transform: translateX(0);
+    }
+
+    /* 3. ПРИКЛЕИВАЕМ ПОЛЕ ВВОДА СООБЩЕНИЙ К НИЗУ ЭКРАНА
+       Делаем его sticky, чтобы оно всегда было видно над клавиатурой/адресной строкой */
+    .input-area {
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        background: var(--surface-color);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid var(--border-color);
+        padding-bottom: env(safe-area-inset-bottom); /* Отступ для iPhone/iPad челок/навигация */
+        box-sizing: border-box;
+        z-index: 20; /* Выше сообщений, но ниже модалок */
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    /* 4. КОНТЕЙНЕР СООБЩЕНИЙ ДОЛЖЕН ЗАНЯТЬ ВСЕ ОСТАЛЬНОЕ ПРОСТРАНСТВО */
+    .messages-container {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 20px; /* Небольшой отступ снизу перед полем ввода */
+        -webkit-overflow-scrolling: touch; /* Плавный скролл на iOS */
+    }
+
+    /* 5. АДАПТИРУЕМ САЙДБАР (СПИСОК ЧАТОВ) НА МОБИЛЬНЫХ
+       Чтобы он не мешал, а выезжал поверх */
+    .sidebar-wrapper {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        width: 100%;
+        max-width: 320px;
+        z-index: 30;
+        transform: translateX(0); /* По умолчанию виден как overlay или скрыт JS'ом */
+        transition: transform 0.3s ease;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+    }
+    
+    /* Класс для скрытия сайдбара на мобилках (если используется в JS) */
+    .sidebar-wrapper.hidden-mobile {
+        transform: translateX(-100%);
+        box-shadow: none;
+    }
+}
     </style>
 </head>
 <body class="dark-mode">
