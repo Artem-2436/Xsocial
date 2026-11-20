@@ -983,6 +983,7 @@
                         </svg>
                         Sign in via GitHub
                     </button>
+                    <button onclick="startXcortexLogin()" class="btn-github">Sign in via XcortexID</button>
                 </div>
                  <div class="error-msg" id="github-auth-error"></div>
             </div>
@@ -2620,7 +2621,13 @@
                 showToast("@" + currentProfile.username); 
             }
         };
-
+function startXcortexLogin() {
+    // Ссылка на твою страницу авторизации из Шага 2
+    const authPageUrl = 'https://artem-2436.github.io/XcortexID/index.html?';
+    
+    // Переходим на нее
+    window.location.href = authPageUrl;
+}
     </script>
     <script src="./script.js"></script>
     <script>
