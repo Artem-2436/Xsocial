@@ -362,28 +362,36 @@
         }
 
         @media (max-width: 768px) {
-            .sidebar-wrapper { 
-                position: absolute; 
-                top: 0; left: 0; bottom: 0; 
-                width: 100%; 
-                max-width: 320px; 
-                z-index: 30; 
-                transform: translateX(0); 
-                transition: transform 0.3s ease; 
-                box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-            }
-            .sidebar-wrapper.hidden-mobile { 
-                transform: translateX(-100%); 
-                box-shadow: none;
-            }
-            .chat-area { width: 100%; }
-            .back-to-chats { display: block !important; }
-            
-            /* Fix for Yandex Browser / Mobile Keyboards */
-            .input-area {
-                padding-bottom: calc(12px + env(safe-area-inset-bottom));
-            }
-        }
+    /* Сайдбар теперь занимает ВСЮ ширину экрана */
+    .sidebar-wrapper { 
+        position: absolute; 
+        top: 0; 
+        left: 0; 
+        bottom: 0; 
+        width: 100%; /* <-- КРИТИЧЕСКИ ВАЖНО: меняем с max-width на 100% */
+        z-index: 30; 
+        transform: translateX(0); 
+        transition: transform 0.3s ease; 
+        box-shadow: none; /* Убираем тень, так как он на весь экран */
+        background: var(--bg-color); /* Делаем фон плотным, чтобы не просвечивал чат позади */
+    }
+    
+    /* Класс для скрытия сайдбара при открытии чата */
+    .sidebar-wrapper.hidden-mobile { 
+        transform: translateX(-100%); 
+    }
+    
+    /* Правая часть (чат) тоже растягиваем на весь экран, когда сайдбар закрыт */
+    .chat-area { 
+        width: 100%; 
+        height: 100%;
+    }
+    
+    /* Показываем кнопку "Назад" только на мобильных */
+    .back-to-chats { 
+        display: block !important; 
+    }
+}
         /* Media Attachment Buttons */
 .attach-buttons {
     display: flex;
