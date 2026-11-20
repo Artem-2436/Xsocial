@@ -241,12 +241,120 @@
             gap: 16px; 
             -webkit-overflow-scrolling: touch;
         }
-        .message-bubble { max-width: 70%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; word-wrap: break-word; position: relative; }
-        .message-sender-name { font-size: 11px; font-weight: 600; margin-bottom: 4px; opacity: 0.8; }
-        .message-sent { align-self: flex-end; background: var(--accent-color); color: white; border-bottom-right-radius: 4px; }
-        .message-received { align-self: flex-start; background: rgba(255,255,255,0.1); color: var(--text-primary); border-bottom-left-radius: 4px; }
-        body.light-mode .message-received { background: rgba(0,0,0,0.05); }
         
+        /* Message Bubble & Context Menu Wrapper */
+        .message-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+        .message-wrapper.sent { align-self: flex-end; }
+        .message-wrapper.received { align-self: flex-start; }
+
+        .message-bubble { 
+            padding: 12px 16px; 
+            border-radius: 18px; 
+            font-size: 14px; 
+            line-height: 1.5; 
+            word-wrap: break-word; 
+            position: relative; 
+            cursor: default; /* Prevent text selection drag issues */
+        }
+        .sent .message-bubble { background: var(--accent-color); color: white; border-bottom-right-radius: 4px; }
+        .received .message-bubble { background: rgba(255,255,255,0.1); color: var(--text-primary); border-bottom-left-radius: 4px; }
+        body.light-mode .received .message-bubble { background: rgba(0,0,0,0.05); }
+
+        /* Reply Quote inside Bubble */
+        .reply-quote {
+            background: rgba(0,0,0,0.2);
+            border-left: 3px solid var(--accent-color);
+            padding: 6px 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+        body.light-mode .reply-quote { background: rgba(255,255,255,0.1); }
+        .reply-author { font-weight: 600; font-size: 11px; margin-bottom: 2px; display: block; }
+        .reply-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+
+        /* Three Dots Trigger (Desktop Hover) */
+        .msg-options-trigger {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.3);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            cursor: pointer;
+            z-index: 5;
+        }
+        .sent .msg-options-trigger { left: -40px; }
+        .received .msg-options-trigger { right: -40px; }
+        
+        /* Show on hover for desktop */
+        @media (hover: hover) and (pointer: fine) {
+            .message-wrapper:hover .msg-options-trigger { opacity: 1; }
+        }
+        /* Always visible on mobile if long pressed? No, handled by JS class */
+        .msg-options-trigger.active-mobile { opacity: 1; }
+
+        /* Context Menu Popup */
+        .context-menu {
+            position: absolute;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 100;
+            min-width: 150px;
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .context-menu.show { display: flex; }
+        .ctx-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+            transition: background 0.2s;
+        }
+        .ctx-item:hover { background: var(--surface-color); }
+        .ctx-item.danger { color: var(--danger-color); }
+        .ctx-item.danger:hover { background: rgba(239, 68, 68, 0.1); }
+
+        /* Reply Bar Above Input */
+        .reply-bar {
+            background: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            animation: slideDown 0.2s ease;
+        }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .reply-bar-content { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .reply-bar-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; padding: 0 5px; }
+
         .input-area { 
             padding: 12px 16px; 
             background: var(--surface-color); 
@@ -362,36 +470,32 @@
         }
 
         @media (max-width: 768px) {
-    /* Сайдбар теперь занимает ВСЮ ширину экрана */
-    .sidebar-wrapper { 
-        position: absolute; 
-        top: 0; 
-        left: 0; 
-        bottom: 0; 
-        width: 100%; /* <-- КРИТИЧЕСКИ ВАЖНО: меняем с max-width на 100% */
-        z-index: 30; 
-        transform: translateX(0); 
-        transition: transform 0.3s ease; 
-        box-shadow: none; /* Убираем тень, так как он на весь экран */
-        background: var(--bg-color); /* Делаем фон плотным, чтобы не просвечивал чат позади */
-    }
-    
-    /* Класс для скрытия сайдбара при открытии чата */
-    .sidebar-wrapper.hidden-mobile { 
-        transform: translateX(-100%); 
-    }
-    
-    /* Правая часть (чат) тоже растягиваем на весь экран, когда сайдбар закрыт */
-    .chat-area { 
-        width: 100%; 
-        height: 100%;
-    }
-    
-    /* Показываем кнопку "Назад" только на мобильных */
-    .back-to-chats { 
-        display: block !important; 
-    }
-}
+            .sidebar-wrapper { 
+                position: absolute; 
+                top: 0; left: 0; bottom: 0; 
+                width: 100%; 
+                z-index: 30; 
+                transform: translateX(0); 
+                transition: transform 0.3s ease; 
+                box-shadow: none;
+                background: var(--bg-color);
+            }
+            .sidebar-wrapper.hidden-mobile { 
+                transform: translateX(-100%); 
+            }
+            .chat-area { 
+                width: 100%; 
+                height: 100%;
+            }
+            .back-to-chats { 
+                display: block !important; 
+            }
+            
+            /* Fix for Yandex Browser / Mobile Keyboards */
+            .input-area {
+                padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            }
+        }
         /* Media Attachment Buttons */
 .attach-buttons {
     display: flex;
@@ -569,6 +673,14 @@
                 </header>
                 <div class="messages-container" id="messages-container"></div>
                 
+                <!-- Reply Bar (Hidden by default) -->
+                <div id="reply-bar" class="reply-bar hidden">
+                    <div class="reply-bar-content">
+                        <strong>Ответ:</strong> <span id="reply-preview-text">...</span>
+                    </div>
+                    <button class="reply-bar-close" onclick="cancelReply()">&times;</button>
+                </div>
+
                 <!-- Input Area (Hidden if Read Only) -->
                 <footer class="input-area" id="input-footer">
     <!-- Кнопки прикрепления -->
@@ -690,6 +802,9 @@
         let messageCache = {}; 
         let profileCache = {}; 
         
+        // State for Replies
+        let replyingToMessage = null; // Holds the message object we are replying to
+        
         let wizardState = {
             step: 1, type: '', name: '', description: '', isPublic: false, channelUsername: '', selectedContacts: []
         };
@@ -725,7 +840,9 @@
             githubBtn: document.getElementById('btn-github-login'),
             authError: document.getElementById('auth-error'),
             magicLinkStatus: document.getElementById('magic-link-status'),
-            btnSendMagicLink: document.getElementById('btn-send-magic-link')
+            btnSendMagicLink: document.getElementById('btn-send-magic-link'),
+            replyBar: document.getElementById('reply-bar'),
+            replyPreviewText: document.getElementById('reply-preview-text')
         };
 
         window.onload = async () => {
@@ -1411,7 +1528,7 @@
         }
 
         function appendMessageToDOM(msg) {
-            const existingElement = document.querySelector(`.message-bubble[data-real-id="${msg.id}"]`);
+            const existingElement = document.querySelector(`.message-wrapper[data-real-id="${msg.id}"]`);
             if (existingElement) return;
 
             if (!messageCache[msg.chat_id]) messageCache[msg.chat_id] = [];
@@ -1421,13 +1538,82 @@
             if (activeChatId !== msg.chat_id) return;
 
             const isMine = msg.sender_id === currentUser.id;
-            const div = document.createElement('div');
-            div.className = `message-bubble ${isMine ? 'message-sent' : 'message-received'}`;
-            div.setAttribute('data-real-id', msg.id);
-            div.innerHTML = renderMessageContent(msg.content);
             
-            els.messagesContainer.appendChild(div);
+            // Wrapper Div
+            const wrapper = document.createElement('div');
+            wrapper.className = `message-wrapper ${isMine ? 'sent' : 'received'}`;
+            wrapper.setAttribute('data-real-id', msg.id);
+            wrapper.setAttribute('data-sender-id', msg.sender_id);
+            wrapper.setAttribute('data-content', msg.content); // Store raw content for reply logic
+            
+            // Bubble Div
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble';
+            
+            // Render Content (Text or Media)
+            bubble.innerHTML = renderMessageContent(msg.content);
+            
+            // Add Reply Quote if applicable
+            if (msg.reply_to_id) {
+                // Find original message in cache to get its preview
+                const originalMsg = messageCache[msg.chat_id].find(m => m.id === msg.reply_to_id);
+                if (originalMsg) {
+                    const quoteDiv = document.createElement('div');
+                    quoteDiv.className = 'reply-quote';
+                    // Simple truncation for preview
+                    let previewText = originalMsg.content;
+                    try {
+                        const parsed = JSON.parse(originalMsg.content);
+                        if(parsed.type) previewText = `[Медиа: ${parsed.type}]`;
+                    } catch(e) {}
+                    
+                    quoteDiv.innerHTML = `
+                        <span class="reply-author">@${getUserName(originalMsg.sender_id)}</span>
+                        <span class="reply-text">${escapeHtml(previewText.substring(0, 50))}${previewText.length > 50 ? '...' : ''}</span>
+                    `;
+                    // Clicking quote scrolls to original
+                    quoteDiv.onclick = () => {
+                        const origEl = document.querySelector(`.message-wrapper[data-real-id="${originalMsg.id}"]`);
+                        if(origEl) origEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    };
+                    bubble.prepend(quoteDiv);
+                }
+            }
+
+            wrapper.appendChild(bubble);
+
+            // Options Trigger (Three Dots)
+            const trigger = document.createElement('div');
+            trigger.className = 'msg-options-trigger';
+            trigger.innerHTML = '<i data-feather="more-horizontal" width="16" height="16"></i>';
+            trigger.onclick = (e) => {
+                e.stopPropagation();
+                toggleContextMenu(wrapper, msg);
+            };
+            wrapper.appendChild(trigger);
+
+            // Long Press Handler for Mobile
+            let pressTimer;
+            wrapper.addEventListener('touchstart', (e) => {
+                pressTimer = setTimeout(() => {
+                    toggleContextMenu(wrapper, msg);
+                }, 500); // 500ms hold
+            }, { passive: true });
+
+            wrapper.addEventListener('touchend', () => clearTimeout(pressTimer));
+            wrapper.addEventListener('touchmove', () => clearTimeout(pressTimer));
+
+            els.messagesContainer.appendChild(wrapper);
             scrollToBottom();
+            feather.replace(); // Re-render icons for new elements
+        }
+
+        function getUserName(userId) {
+            if (userId === currentUser.id) return "Вы";
+            const cached = profileCache[userId];
+            if (cached) return cached.username;
+            // Fallback lookup could go here, but for now generic
+            return "Пользователь";
         }
 
         function renderMessageContent(content) {
@@ -1473,12 +1659,21 @@
             
             els.messageInput.value = '';
 
+            // Prepare payload
+            const payload = { 
+                chat_id: activeChatId, 
+                sender_id: currentUser.id, 
+                content: text 
+            };
+
+            // Attach reply if exists
+            if (replyingToMessage) {
+                payload.reply_to_id = replyingToMessage.id;
+                cancelReply(); // Clear state after sending
+            }
+
             try {
-                const { error } = await supabaseClient.from('messages').insert([{ 
-                    chat_id: activeChatId, 
-                    sender_id: currentUser.id, 
-                    content: text 
-                }]);
+                const { error } = await supabaseClient.from('messages').insert([payload]);
 
                 if(error) throw error;
             } catch (err) {
@@ -1488,6 +1683,117 @@
         }
 
         els.messageInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+
+        // ==========================================
+        // CONTEXT MENU & REPLY LOGIC
+        // ==========================================
+        
+        let currentContextMenu = null;
+
+        function toggleContextMenu(wrapperEl, msgData) {
+            // Close any existing menu
+            if (currentContextMenu) {
+                currentContextMenu.remove();
+                currentContextMenu = null;
+            }
+
+            // If clicking same wrapper again, do nothing (already closed above)
+            // But we need to check if we clicked outside to close. Handled below globally.
+
+            const menu = document.createElement('div');
+            menu.className = 'context-menu show';
+            
+            // Positioning
+            const rect = wrapperEl.getBoundingClientRect();
+            // Try to place near the trigger dot
+            const isSent = wrapperEl.classList.contains('sent');
+            
+            // Basic positioning logic
+            menu.style.top = (rect.bottom + window.scrollY) + 'px';
+            if (isSent) {
+                menu.style.right = (window.innerWidth - rect.left) + 'px';
+            } else {
+                menu.style.left = rect.left + 'px';
+            }
+
+            // Items
+            const replyItem = document.createElement('div');
+            replyItem.className = 'ctx-item';
+            replyItem.innerHTML = '<i data-feather="corner-up-left" width="16"></i> Ответить';
+            replyItem.onclick = () => {
+                startReply(msgData);
+                menu.remove();
+                currentContextMenu = null;
+            };
+            menu.appendChild(replyItem);
+
+            // Delete Item (Only if owner/admin OR self)
+            const canDelete = (msgData.sender_id === currentUser.id) || (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin');
+            if (canDelete) {
+                const delItem = document.createElement('div');
+                delItem.className = 'ctx-item danger';
+                delItem.innerHTML = '<i data-feather="trash-2" width="16"></i> Удалить';
+                delItem.onclick = () => {
+                    deleteSpecificMessage(msgData.id);
+                    menu.remove();
+                    currentContextMenu = null;
+                };
+                menu.appendChild(delItem);
+            }
+
+            document.body.appendChild(menu);
+            currentContextMenu = menu;
+            feather.replace(); // Ensure icons render in menu
+        }
+
+        // Global click listener to close context menu
+        document.addEventListener('click', (e) => {
+            if (currentContextMenu && !currentContextMenu.contains(e.target) && !e.target.closest('.msg-options-trigger')) {
+                currentContextMenu.remove();
+                currentContextMenu = null;
+            }
+        });
+
+        function startReply(msgData) {
+            replyingToMessage = msgData;
+            els.replyBar.classList.remove('hidden');
+            
+            // Generate Preview Text
+            let preview = msgData.content;
+            try {
+                const parsed = JSON.parse(msgData.content);
+                if(parsed.type) preview = `[Медиа: ${parsed.type}]`;
+            } catch(e) {}
+            
+            els.replyPreviewText.textContent = preview.substring(0, 60) + (preview.length > 60 ? '...' : '');
+            els.messageInput.focus();
+        }
+
+        function cancelReply() {
+            replyingToMessage = null;
+            els.replyBar.classList.add('hidden');
+            els.replyPreviewText.textContent = '';
+        }
+
+        async function deleteSpecificMessage(messageId) {
+            if(!confirm("Удалить это сообщение?")) return;
+
+            const { error } = await supabaseClient
+                .from('messages')
+                .delete()
+                .eq('id', messageId);
+
+            if (error) {
+                alert("Ошибка удаления: " + error.message);
+            } else {
+                // Remove from local cache and DOM
+                const idx = messageCache[activeChatId]?.findIndex(m => m.id === messageId);
+                if(idx !== -1) messageCache[activeChatId].splice(idx, 1);
+                
+                const el = document.querySelector(`.message-wrapper[data-real-id="${messageId}"]`);
+                if(el) el.remove();
+            }
+        }
 
         // Chat Settings Admin Panel
         function openChatSettingsModal() {
@@ -1794,7 +2100,14 @@
         }
 
         function removeMessageFromDOM(messageId) {
-           if(activeChatId) loadMessages(activeChatId);
+           const el = document.querySelector(`.message-wrapper[data-real-id="${messageId}"]`);
+           if(el) el.remove();
+           
+           // Also remove from cache
+           if(messageCache[activeChatId]) {
+               const idx = messageCache[activeChatId].findIndex(m => m.id === messageId);
+               if(idx !== -1) messageCache[activeChatId].splice(idx, 1);
+           }
         }
 
         // Media Upload Logic
@@ -1847,11 +2160,18 @@
         async function sendMediaMessage(jsonContent) {
             if(!jsonContent || !activeChatId) return;
 
-            const { error } = await supabaseClient.from('messages').insert([{
+            const payload = {
                 chat_id: activeChatId,
                 sender_id: currentUser.id,
                 content: jsonContent
-            }]);
+            };
+            
+            if (replyingToMessage) {
+                payload.reply_to_id = replyingToMessage.id;
+                cancelReply();
+            }
+
+            const { error } = await supabaseClient.from('messages').insert([payload]);
 
             if(error) alert("Ошибка отправки медиа");
         }
@@ -1890,10 +2210,6 @@
         updateUI = function() {
             originalUpdateUI();
             if(currentProfile && currentProfile.username) {
-                // Assuming we want to show email or username. 
-                // Based on screenshot "artem.ovsyankin33", it looks like an identifier.
-                // Let's assume it shows the logged-in user's ID or Email masked.
-                // For now, let's show the username as requested by visual context.
                 showToast("@" + currentProfile.username); 
             }
         };
