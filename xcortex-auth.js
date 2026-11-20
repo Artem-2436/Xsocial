@@ -6,7 +6,7 @@
 (function() {
     // ================= НАСТРОЙКИ =================
     // Куда вести пользователя для входа?
-    const XCORTTEX_ID_PAGE = 'https://github.com/artem-2436/id.html'; // ЗАМЕНИ на адрес своего id.html
+    const XCORTTEX_ID_PAGE = 'https://artem-2436.github.io/XcortexID/index.html'; // ЗАМЕНИ на адрес своего id.html
     
     // Данные Supabase (должны совпадать с теми, что в id.html)
     const SUPABASE_URL = 'https://ifsokgkfatghsxeoqofl.supabase.co';
