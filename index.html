@@ -50,8 +50,21 @@
         .brand-logo { text-align: center; margin-bottom: 24px; }
         .brand-logo h1 { font-weight: 700; font-size: 28px; letter-spacing: -0.5px; background: linear-gradient(to right, var(--text-primary), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
+        /* Auth Tabs */
+        .auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .auth-tab { flex: 1; background: none; border: none; color: var(--text-secondary); font-weight: 600; cursor: pointer; padding: 8px; transition: all 0.2s; }
+        .auth-tab.active { color: var(--accent-color); border-bottom: 2px solid var(--accent-color); }
+        
+        /* Forms */
+        .form-group { margin-bottom: 15px; }
+        .submit-btn { width: 100%; padding: 14px; background: var(--accent-color); color: white; border-radius: 12px; font-weight: 600; font-size: 16px; margin-top: 10px; }
+        .submit-btn:hover { filter: brightness(1.1); }
+        .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .error-msg { color: var(--danger-color); font-size: 12px; margin-top: 15px; min-height: 16px; text-align: center; }
+        .info-msg { color: var(--text-secondary); font-size: 12px; margin-top: 10px; text-align: center; }
+
         /* GitHub Button Styles */
-        .github-btn-container { text-align: center; padding: 20px 0; }
+        .github-btn-container { text-align: center; padding: 10px 0; }
         .btn-github { 
             width: 100%; 
             padding: 14px; 
@@ -68,7 +81,6 @@
         }
         .btn-github:hover { transform: translateY(-2px); filter: brightness(1.1); }
         .btn-github svg { fill: currentColor; }
-        .error-msg { color: var(--danger-color); font-size: 12px; margin-top: 15px; min-height: 16px; text-align: center; }
 
         /* --- Main App Layout --- */
         #main-app { width: 100vw; height: 100vh; display: flex; opacity: 0; transition: opacity 0.5s ease; }
@@ -260,19 +272,41 @@
 </head>
 <body class="dark-mode">
 
-    <!-- 1. Экран Авторизации (GitHub Only) -->
+    <!-- 1. Экран Авторизации (Email Magic Link + GitHub) -->
     <div id="auth-screen">
         <div class="glass-card">
             <div class="brand-logo"><h1>Xsocial</h1><p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">By Xcortex & Asinhrom</p></div>
             
-            <div class="github-btn-container">
-                <button type="button" class="btn-github" id="btn-github-login" onclick="signInWithGithub()">
-                    <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
-                    </svg>
-                    Sign in via GitHub
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button id="tab-email" class="auth-tab active" onclick="switchAuthTab('email')">Email Login</button>
+                <button id="tab-github" class="auth-tab" onclick="switchAuthTab('github')">GitHub</button>
+            </div>
+
+            <!-- Email Flow Container -->
+            <div id="email-flow-container">
+                <div class="form-group">
+                    <label style="font-size:12px; color:var(--text-secondary); display:block; margin-bottom:5px;">Ваш Email</label>
+                    <input type="email" id="login-email" placeholder="user@example.com" required>
+                </div>
+                <button class="submit-btn" id="btn-send-magic-link" onclick="sendMagicLink()">
+                    Получить ссылку для входа
                 </button>
+                <div class="info-msg" id="magic-link-status">Мы отправим вам письмо с кнопкой "Войти"</div>
                 <div class="error-msg" id="auth-error"></div>
+            </div>
+
+            <!-- GitHub Flow Container -->
+            <div id="github-flow-container" class="hidden">
+                <div class="github-btn-container">
+                    <button type="button" class="btn-github" id="btn-github-login" onclick="signInWithGithub()">
+                        <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                        </svg>
+                        Sign in via GitHub
+                    </button>
+                </div>
+                 <div class="error-msg" id="github-auth-error"></div>
             </div>
         </div>
     </div>
@@ -483,13 +517,10 @@
         let chats = [];
         let activeChatId = null;
         let activeChatData = null; 
-        let myRoleInActiveChat = 'member'; // owner, admin, member
-        let realtimeChannel = null; // Хранит ссылку на активный канал подписки
+        let myRoleInActiveChat = 'member'; 
+        let realtimeChannel = null; 
         
-        // Кэш сообщений: { chatId: [array_of_messages] }
         let messageCache = {}; 
-
-        // Кэш профилей пользователей: { userId: { username, avatar_url } }
         let profileCache = {}; 
         
         let wizardState = {
@@ -525,7 +556,9 @@
             chatSettingsModal: document.getElementById('chat-settings-modal'),
             chatSettingsBody: document.getElementById('chat-settings-body'),
             githubBtn: document.getElementById('btn-github-login'),
-            authError: document.getElementById('auth-error')
+            authError: document.getElementById('auth-error'),
+            magicLinkStatus: document.getElementById('magic-link-status'),
+            btnSendMagicLink: document.getElementById('btn-send-magic-link')
         };
 
         window.onload = async () => {
@@ -533,7 +566,10 @@
             try {
                 supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 
-                // Слушаем изменения состояния авторизации
+                // 1. Check if we are coming back from a Magic Link redirect
+                await handleAuthCallback();
+
+                // 2. Listen for future auth state changes
                 supabaseClient.auth.onAuthStateChange(async (event, session) => {
                     if (session && session.user) {
                         await initUserSession(session.user);
@@ -544,7 +580,7 @@
                     }
                 });
 
-                // Проверка текущей сессии при первой загрузке
+                // 3. Check existing session on load
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (session && session.user) {
                     await initUserSession(session.user);
@@ -571,15 +607,93 @@
         }
 
         // ==========================================
-        // AUTHENTICATION LOGIC (GITHUB ONLY)
+        // AUTHENTICATION LOGIC (EMAIL MAGIC LINK + GITHUB)
         // ==========================================
 
+        function switchAuthTab(method) {
+            const emailContainer = document.getElementById('email-flow-container');
+            const githubContainer = document.getElementById('github-flow-container');
+            const tabEmail = document.getElementById('tab-email');
+            const tabGithub = document.getElementById('tab-github');
+            
+            if (method === 'email') {
+                emailContainer.classList.remove('hidden');
+                githubContainer.classList.add('hidden');
+                tabEmail.classList.add('active');
+                tabGithub.classList.remove('active');
+            } else {
+                emailContainer.classList.add('hidden');
+                githubContainer.classList.remove('hidden');
+                tabEmail.classList.remove('active');
+                tabGithub.classList.add('active');
+            }
+        }
+
+        async function sendMagicLink() {
+            const emailInput = document.getElementById('login-email');
+            const email = emailInput.value.trim();
+            const statusMsg = els.magicLinkStatus;
+            const btn = els.btnSendMagicLink;
+
+            if (!email || !email.includes('@')) {
+                alert("Введите корректный email");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader"></div> Отправка...';
+            statusMsg.textContent = "Проверьте почту. Нажмите кнопку в письме.";
+            els.authError.textContent = "";
+
+            try {
+                const { error } = await supabaseClient.auth.signInWithOtp({
+                    email: email,
+                    options: {
+                        shouldCreateUser: true, // Создает профиль автоматически, если его нет
+                        emailRedirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+
+                if (error) throw error;
+
+                // Success message stays visible
+                btn.innerHTML = 'Письмо отправлено ✓';
+                btn.style.background = 'var(--success-color)';
+                
+                // Reset button after 5 seconds so they can resend if needed
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Получить ссылку для входа';
+                    btn.style.background = 'var(--accent-color)';
+                }, 5000);
+
+            } catch (err) {
+                console.error("Magic Link Error:", err);
+                els.authError.textContent = "Ошибка: " + err.message;
+                btn.disabled = false;
+                btn.innerHTML = 'Получить ссылку для входа';
+                btn.style.background = 'var(--accent-color)';
+            }
+        }
+
+        async function handleAuthCallback() {
+            // This runs when the page loads after clicking the link in email
+            // Supabase automatically parses the hash fragment (#access_token...)
+            // We just need to wait for getSession() which will pick it up.
+            // However, sometimes explicit handling helps with UI glitches.
+            
+            // Clean up URL hash immediately to prevent issues on refresh
+            if (window.location.hash) {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+        }
+
         async function signInWithGithub() {
-            if(!els.githubBtn || !els.authError) return;
+            if(!els.githubBtn) return;
             
             els.githubBtn.disabled = true;
             els.githubBtn.innerHTML = '<div class="loader"></div> Connecting...';
-            els.authError.textContent = "";
+            document.getElementById('github-auth-error').textContent = "";
 
             try {
                 const { error } = await supabaseClient.auth.signInWithOAuth({
@@ -591,11 +705,9 @@
 
                 if (error) throw error;
                 
-                // Страница перезагрузится или редирект произойдет автоматически
-                
             } catch (err) {
                 console.error("GitHub Login Error:", err);
-                els.authError.textContent = "Ошибка входа: " + err.message;
+                document.getElementById('github-auth-error').textContent = "Ошибка входа: " + err.message;
                 els.githubBtn.disabled = false;
                 els.githubBtn.innerHTML = `<svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg> Sign in via GitHub`;
             }
@@ -618,16 +730,20 @@
                 updateUI();
                 fetchChats();
             } else {
-                // Новый пользователь (первый вход через GitHub)
-                await createNewGithubProfile(user);
+                // Новый пользователь (первый вход через GitHub или Magic Link)
+                await createNewProfile(user);
             }
         }
 
-        async function createNewGithubProfile(user) {
+        async function createNewProfile(user) {
             const meta = user.user_metadata || {};
             
             // Генерируем username
             let username = meta.preferred_username || meta.full_name?.split(' ')[0] || 'User_' + Math.floor(Math.random()*1000);
+            // Для email login preferred_username может не быть, используем первую часть email
+            if (!username || username === 'User_0') {
+                 username = user.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '') + '_' + Math.floor(Math.random()*100);
+            }
             username = username.replace(/[^a-zA-Z0-9_]/g, ''); 
 
             const newProfileData = {
@@ -1166,9 +1282,9 @@
             if (type === 'image') {
                 html += `<img src="${url}" alt="Image" loading="lazy">`;
             } else if (type === 'video') {
-                html += `<video controls preload="metadata">${url}</video>`;
+                html += `<video controls preload="metadata"><source src="${url}" type="video/mp4">Your browser does not support the video tag.</video>`;
             } else if (type === 'audio') {
-                html += `<audio controls>${url}</audio>`;
+                html += `<audio controls><source src="${url}">Your browser does not support the audio element.</audio>`;
             }
             
             if (caption) {
