@@ -244,10 +244,18 @@
         
         /* Message Bubble & Context Menu Wrapper */
         .message-wrapper {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            max-width: 70%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+    
+    /* --- НОВОЕ ИСПРАВЛЕНИЕ --- */
+    user-select: none;           /* Запрещает выделение текста во всем блоке */
+    -webkit-user-select: none;   /* Для Safari/iOS */
+    -moz-user-select: none;      /* Для Firefox */
+    -ms-user-select: none;       /* Для IE/Edge */
+    touch-action: manipulation;  /* Оптимизирует обработку касаний, убирает задержку клика */
+}
         }
         .message-wrapper.sent { align-self: flex-end; }
         .message-wrapper.received { align-self: flex-start; }
