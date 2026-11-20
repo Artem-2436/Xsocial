@@ -268,6 +268,42 @@
     margin-top: 4px;
     word-break: break-all;
 }
+        /* --- Mobile Fixes for Input & Layout --- */
+@media (max-width: 768px) {
+    /* Фиксируем основной контейнер по высоте видимого окна */
+    #main-app {
+        height: 100dvh !important; 
+        overflow: hidden;
+    }
+    
+    /* Делаем сайдбар фиксированным поверх контента при открытии */
+    .sidebar-wrapper {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        z-index: 30;
+        height: 100dvh;
+    }
+
+    /* ГРАВИТАЦИЯ ПОЛЯ ВВОДА СООБЩЕНИЙ */
+    .input-area {
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        background: var(--surface-color);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid var(--border-color);
+        padding-bottom: env(safe-area-inset-bottom); /* Учитываем "челку"/навигацию Android/iOS */
+        box-sizing: border-box;
+        z-index: 20;
+    }
+    
+    /* Контейнер сообщений должен занимать оставшееся пространство */
+    .messages-container {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS */
+    }
+}
     </style>
 </head>
 <body class="dark-mode">
@@ -1685,6 +1721,41 @@
 
             if(error) alert("Ошибка отправки медиа");
         }
+        // Автоматическое скрытие уведомления о почте/статусе через 5 секунд
+setTimeout(() => {
+    // Ищем элементы, которые могут быть этой плашкой. 
+    // Попробуй несколько селекторов, так как я не знаю точный ID этого элемента в твоем коде.
+    const notificationSelectors = [
+        '.user-email-toast',      // Если есть такой класс
+        '#email-status-indicator',// Если есть такой ID
+        '[class*="toast"]',       // Любой элемент со словом toast
+        '[class*="notification"]' // Любой элемент со словом notification
+    ];
+
+    let foundElement = null;
+
+    // Проходим по списку возможных селекторов
+    for (let selector of notificationSelectors) {
+        const el = document.querySelector(selector);
+        if (el) {
+            foundElement = el;
+            break;
+        }
+    }
+
+    // Если нашли конкретный элемент, скрываем его плавно
+    if (foundElement) {
+        foundElement.style.transition = 'opacity 0.5s ease';
+        foundElement.style.opacity = '0';
+        
+        // Удаляем из DOM после анимации, чтобы он не мешал кликам
+        setTimeout(() => {
+            foundElement.remove();
+        }, 500);
+    } else {
+        console.warn("Не найдена плашка с почтой для автоскрытия. Проверь её ID или Class.");
+    }
+}, 5000); // Задержка ровно 5 секунд
     </script>
     <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
