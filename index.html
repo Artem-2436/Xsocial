@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Xsocial | v1.2.0 Beta</title>
+    <title>Xsocial | v1.1.1</title>
     
     <!-- Шрифты -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -294,125 +294,6 @@
     .action-btn:hover { background: rgba(255,255,255,0.1); }
     .logout-btn-full { background: var(--danger-color); color: white; border: none; text-align: center; margin-top: 20px; }
 
-    /* ===== STORIES SECTION ===== */
-    .stories-container {
-        display: flex;
-        gap: 12px;
-        padding: 15px 20px;
-        overflow-x: auto;
-        border-bottom: 1px solid var(--border-color);
-        background: var(--surface-color);
-        scrollbar-width: none; /* Firefox */
-        flex-shrink: 0;
-    }
-    .stories-container::-webkit-scrollbar { display: none; } /* Chrome/Safari */
-
-    .story-circle {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        position: relative;
-        cursor: pointer;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s;
-    }
-    .story-circle:hover { transform: scale(1.05); }
-
-    .story-ring {
-        position: absolute;
-        top: -3px; left: -3px; right: -3px; bottom: -3px;
-        border-radius: 50%;
-        border: 2px solid var(--accent-color);
-        opacity: 0.8;
-    }
-    .story-ring.viewed { border-color: var(--text-secondary); opacity: 0.4; }
-
-    .story-avatar {
-        width: 54px;
-        height: 54px;
-        border-radius: 50%;
-        object-fit: cover;
-        background: #333;
-        z-index: 1;
-    }
-
-    .story-add-btn {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.1);
-        border: 2px dashed var(--border-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-secondary);
-        cursor: pointer;
-        z-index: 2;
-    }
-    .story-add-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
-
-    /* Story Viewer Modal */
-    #story-viewer-modal {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: black;
-        z-index: 9999;
-        display: none;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-    #story-viewer-modal.active { display: flex; }
-    .story-progress-bar {
-        position: absolute;
-        top: 10px; left: 10px; right: 10px;
-        height: 3px;
-        background: rgba(255,255,255,0.3);
-        border-radius: 2px;
-        overflow: hidden;
-    }
-    .story-progress-fill {
-        height: 100%;
-        background: white;
-        width: 0%;
-        transition: width linear;
-    }
-    .story-content-img {
-        max-width: 90%;
-        max-height: 80vh;
-        object-fit: contain;
-        border-radius: 8px;
-    }
-    .story-text-overlay {
-        position: absolute;
-        bottom: 20px;
-        left: 20px; right: 20px;
-        background: rgba(0,0,0,0.7);
-        color: white;
-        padding: 15px;
-        border-radius: 12px;
-        text-align: center;
-        font-size: 16px;
-        backdrop-filter: blur(5px);
-    }
-    .story-close-btn {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: rgba(0,0,0,0.5);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        font-size: 24px;
-        cursor: pointer;
-        z-index: 10000;
-    }
-
     /* ===== CHAT LIST AREA (SIDEBAR CONTENT) ===== */
     .chat-list-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
     .top-bar { 
@@ -438,31 +319,9 @@
         font-size: 14px; 
         flex-shrink: 0; 
         overflow: hidden; 
-        position: relative;
     }
     .avatar img { width: 100%; height: 100%; object-fit: cover; }
     
-    /* Status Indicator on Avatar */
-    .status-dot {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        border: 2px solid var(--bg-color);
-        background: gray;
-    }
-    .status-online { background: var(--success-color); }
-    .status-typing { background: var(--warning-color); animation: pulse 1.5s infinite; }
-    .status-offline { background: var(--text-secondary); }
-
-    @keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.5; }
-        100% { opacity: 1; }
-    }
-
     .search-bar-container { 
         padding: 10px 20px; 
         display: flex; 
@@ -492,7 +351,6 @@
         cursor: pointer; 
         transition: background 0.2s; 
         margin-bottom: 4px; 
-        position: relative;
     }
     .chat-item:hover { background: rgba(255,255,255,0.05); }
     .chat-item.active { 
@@ -732,46 +590,6 @@
     .ctx-item.danger { color: var(--danger-color); }
     .ctx-item.danger:hover { background: rgba(239, 68, 68, 0.1); }
 
-    /* Quick Reactions Row inside Context Menu */
-    .quick-reactions-row {
-        display: flex;
-        gap: 5px;
-        padding: 5px 0;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 5px;
-        flex-wrap: wrap;
-    }
-    .qr-emoji {
-        font-size: 20px;
-        cursor: pointer;
-        padding: 2px;
-        border-radius: 4px;
-        transition: transform 0.1s;
-    }
-    .qr-emoji:hover { transform: scale(1.2); background: rgba(255,255,255,0.1); }
-
-    /* Reactions Display under Bubble */
-    .reactions-display {
-        display: flex;
-        gap: 5px;
-        margin-top: 5px;
-        flex-wrap: wrap;
-    }
-    .reaction-chip {
-        background: rgba(255,255,255,0.1);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        padding: 2px 8px;
-        font-size: 12px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        transition: all 0.2s;
-    }
-    .reaction-chip:hover { background: rgba(255,255,255,0.2); }
-    .reaction-chip.mine { border-color: var(--accent-color); background: rgba(99, 102, 241, 0.2); }
-
     /* Панель цитирования над полем ввода */
     .reply-bar {
         background: var(--surface-color);
@@ -991,7 +809,6 @@
     .add-result-item { 
         display: flex; 
         align-items: center; 
-        justify-content: space-between;
         gap: 10px; 
         padding: 8px; 
         cursor: pointer; 
@@ -1095,45 +912,6 @@
         word-break: break-all;
     }
 
-    /* Join Button in Search Results */
-    .join-btn-search {
-        background: var(--accent-color);
-        color: white;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 6px;
-        font-size: 12px;
-        cursor: pointer;
-        margin-left: 10px;
-    }
-    .join-btn-search.joined {
-        background: transparent;
-        border: 1px solid var(--border-color);
-        color: var(--text-secondary);
-    }
-
-    /* Bot Rules UI */
-    .bot-rule-item {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-        align-items: center;
-    }
-    .bot-rule-item input { flex: 1; }
-    .delete-bot-rule {
-        background: var(--danger-color);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-    }
-
     /* ===== MOBILE RESPONSIVE ===== */
     @media (max-width: 768px) {
         .sidebar-wrapper { 
@@ -1173,15 +951,15 @@
 </head>
 <body class="dark-mode">
 
-    <!-- 1. Экран Авторизации (Email Magic Link + GitHub + XcortexID) -->
+    <!-- 1. Экран Авторизации (Email Magic Link + GitHub) -->
     <div id="auth-screen">
         <div class="glass-card">
-            <div class="brand-logo"><h1>Xsocial v1.2.0</h1><p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">By Xcortex & Asinhrom</p></div>
+            <div class="brand-logo"><h1>Xsocial v1.1.1</h1><p style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">By Xcortex & Asinhrom</p></div>
             
             <!-- Tabs -->
             <div class="auth-tabs">
                 <button id="tab-email" class="auth-tab active" onclick="switchAuthTab('email')">Email Login</button>
-                <button id="tab-github" class="auth-tab" onclick="switchAuthTab('github')">GitHub / Xcortex</button>
+                <button id="tab-github" class="auth-tab" onclick="switchAuthTab('github')">GitHub</button>
             </div>
 
             <!-- Email Flow Container -->
@@ -1197,7 +975,7 @@
                 <div class="error-msg" id="auth-error"></div>
             </div>
 
-            <!-- GitHub & Xcortex Flow Container -->
+            <!-- GitHub Flow Container -->
             <div id="github-flow-container" class="hidden">
                 <div class="github-btn-container">
                     <button type="button" class="btn-github" id="btn-github-login" onclick="signInWithGithub()">
@@ -1206,7 +984,7 @@
                         </svg>
                         Sign in via GitHub
                     </button>
-                    <button onclick="startXcortexLogin()" class="btn-github" style="background: #1a1a2e; border: 1px solid var(--accent-color);">Sign in via XcortexID</button>
+                    <button onclick="startXcortexLogin()" class="btn-github">Sign in via XcortexID</button>
                 </div>
                  <div class="error-msg" id="github-auth-error"></div>
             </div>
@@ -1255,17 +1033,11 @@
                 <div class="top-bar">
                     <button class="menu-icon-btn" onclick="toggleSettings(true)"><i data-feather="menu" width="24" height="24"></i></button>
                     <div class="user-profile-mini" onclick="toggleSettings(true)">
-                        <div class="avatar" id="my-avatar">U<div class="status-dot status-online"></div></div>
+                        <div class="avatar" id="my-avatar">U</div>
                         <span id="my-username" style="font-weight: 600; font-size: 14px;">User</span>
                     </div>
                 </div>
                 
-                <!-- Stories Section -->
-                <div class="stories-container" id="stories-container">
-                    <div class="story-add-btn" onclick="openStoryCreator()">+</div>
-                    <!-- Stories will be injected here -->
-                </div>
-
                 <div class="search-bar-container">
                     <div class="search-input-wrapper">
                         <input type="text" id="search-user" placeholder="Поиск по @username..." autocomplete="off">
@@ -1295,10 +1067,10 @@
                 <header class="chat-header">
                     <div class="header-left">
                         <button class="back-to-chats" onclick="toggleSidebarMobile(true)"><i data-feather="arrow-left"></i></button>
-                        <div class="avatar" id="partner-avatar" style="width: 36px; height: 36px; font-size: 12px;">P<div class="status-dot status-offline" id="partner-status-dot"></div></div>
+                        <div class="avatar" id="partner-avatar" style="width: 36px; height: 36px; font-size: 12px;">P</div>
                         <div>
                             <h3 id="partner-name" style="font-size: 16px; font-weight: 600;">Partner</h3>
-                            <span id="partner-status" style="font-size: 12px; color: var(--text-secondary);">Offline</span>
+                            <span id="partner-status" style="font-size: 12px; color: var(--text-secondary);">Online</span>
                         </div>
                     </div>
                     <div class="header-actions">
@@ -1347,7 +1119,7 @@
     <div id="search-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Найденные пользователи и группы</h3>
+                <h3 class="modal-title">Найденные пользователи</h3>
                 <button class="close-modal" onclick="closeModal()">&times;</button>
             </div>
             <div class="results-list" id="results-list"></div>
@@ -1417,33 +1189,6 @@
         </div>
     </div>
 
-    <!-- STORY CREATOR MODAL -->
-    <div id="story-creator-modal" class="modal-overlay" onclick="if(event.target === this) closeStoryCreator()">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Добавить историю</h3>
-                <button class="close-modal" onclick="closeStoryCreator()">&times;</button>
-            </div>
-            <div class="form-group">
-                <label>Загрузить фото (опционально)</label>
-                <input type="file" id="story-file" accept="image/*">
-            </div>
-            <div class="form-group">
-                <label>Или написать текст</label>
-                <textarea id="story-text" rows="3" placeholder="Ваш текст истории..."></textarea>
-            </div>
-            <button class="submit-btn" onclick="publishStory()">Опубликовать</button>
-        </div>
-    </div>
-
-    <!-- STORY VIEWER MODAL -->
-    <div id="story-viewer-modal">
-        <button class="story-close-btn" onclick="closeStoryViewer()">&times;</button>
-        <div class="story-progress-bar"><div class="story-progress-fill" id="story-progress-fill"></div></div>
-        <img id="story-image" class="story-content-img" src="" alt="">
-        <div id="story-text-overlay" class="story-text-overlay hidden"></div>
-    </div>
-
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -1465,10 +1210,9 @@
         
         let messageCache = {}; 
         let profileCache = {}; 
-        let storiesCache = [];
         
         // State for Replies
-        let replyingToMessage = null; 
+        let replyingToMessage = null; // Holds the message object we are replying to
         
         let wizardState = {
             step: 1, type: '', name: '', description: '', isPublic: false, channelUsername: '', selectedContacts: []
@@ -1493,7 +1237,6 @@
             partnerName: document.getElementById('partner-name'),
             partnerAvatar: document.getElementById('partner-avatar'),
             partnerStatus: document.getElementById('partner-status'),
-            partnerStatusDot: document.getElementById('partner-status-dot'),
             placeholderView: document.getElementById('placeholder-view'),
             activeChatView: document.getElementById('active-chat-view'),
             resultsList: document.getElementById('results-list'),
@@ -1508,13 +1251,7 @@
             magicLinkStatus: document.getElementById('magic-link-status'),
             btnSendMagicLink: document.getElementById('btn-send-magic-link'),
             replyBar: document.getElementById('reply-bar'),
-            replyPreviewText: document.getElementById('reply-preview-text'),
-            storiesContainer: document.getElementById('stories-container'),
-            storyCreatorModal: document.getElementById('story-creator-modal'),
-            storyViewerModal: document.getElementById('story-viewer-modal'),
-            storyImage: document.getElementById('story-image'),
-            storyTextOverlay: document.getElementById('story-text-overlay'),
-            storyProgressFill: document.getElementById('story-progress-fill')
+            replyPreviewText: document.getElementById('reply-preview-text')
         };
 
         window.onload = async () => {
@@ -1561,11 +1298,12 @@
             els.mainApp.classList.remove('hidden'); 
             setTimeout(() => els.mainApp.classList.add('visible'), 100); 
             
+            // Auto-hide toast notification after 5 seconds
             hideToastAfterDelay();
         }
 
         // ==========================================
-        // AUTHENTICATION LOGIC
+        // AUTHENTICATION LOGIC (EMAIL MAGIC LINK + GITHUB)
         // ==========================================
 
         function switchAuthTab(method) {
@@ -1607,16 +1345,18 @@
                 const { error } = await supabaseClient.auth.signInWithOtp({
                     email: email,
                     options: {
-                        shouldCreateUser: true,
+                        shouldCreateUser: true, // Создает профиль автоматически, если его нет
                         emailRedirectTo: window.location.origin + window.location.pathname
                     }
                 });
 
                 if (error) throw error;
 
+                // Success message stays visible
                 btn.innerHTML = 'Письмо отправлено ✓';
                 btn.style.background = 'var(--success-color)';
                 
+                // Reset button after 5 seconds so they can resend if needed
                 setTimeout(() => {
                     btn.disabled = false;
                     btn.innerHTML = 'Получить ссылку для входа';
@@ -1633,6 +1373,12 @@
         }
 
         async function handleAuthCallback() {
+            // This runs when the page loads after clicking the link in email
+            // Supabase automatically parses the hash fragment (#access_token...)
+            // We just need to wait for getSession() which will pick it up.
+            // However, sometimes explicit handling helps with UI glitches.
+            
+            // Clean up URL hash immediately to prevent issues on refresh
             if (window.location.hash) {
                 history.replaceState(null, '', window.location.pathname + window.location.search);
             }
@@ -1663,14 +1409,10 @@
             }
         }
 
-        function startXcortexLogin() {
-            const authPageUrl = 'https://artem-2436.github.io/XcortexID/index.html?';
-            window.location.href = authPageUrl;
-        }
-
         async function initUserSession(user) {
             currentUser = user;
             
+            // 1. Проверяем, есть ли профиль в нашей таблице 'profiles'
             const { data: existingProfile, error: profileError } = await supabaseClient
                 .from('profiles')
                 .select('*')
@@ -1678,12 +1420,13 @@
                 .single();
 
             if (existingProfile) {
+                // Пользователь существует, просто загружаем его
                 currentProfile = existingProfile;
                 applySavedTheme(currentProfile.theme_mode, currentProfile.accent_color);
                 updateUI();
                 fetchChats();
-                fetchStories();
             } else {
+                // Новый пользователь (первый вход через GitHub или Magic Link)
                 await createNewProfile(user);
             }
         }
@@ -1691,7 +1434,9 @@
         async function createNewProfile(user) {
             const meta = user.user_metadata || {};
             
+            // Генерируем username
             let username = meta.preferred_username || meta.full_name?.split(' ')[0] || 'User_' + Math.floor(Math.random()*1000);
+            // Для email login preferred_username может не быть, используем первую часть email
             if (!username || username === 'User_0') {
                  username = user.email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '') + '_' + Math.floor(Math.random()*100);
             }
@@ -1718,7 +1463,6 @@
             applySavedTheme(newProfileData.theme_mode, newProfileData.accent_color);
             updateUI();
             fetchChats();
-            fetchStories();
         }
 
         function updateUI() {
@@ -1726,9 +1470,9 @@
             els.myUsername.textContent = "@" + currentProfile.username;
             
             if (currentProfile.avatar_url) {
-                els.myAvatar.innerHTML = `<img src="${currentProfile.avatar_url}" alt="avatar"><div class="status-dot status-online"></div>`;
+                els.myAvatar.innerHTML = `<img src="${currentProfile.avatar_url}" alt="avatar">`;
             } else {
-                els.myAvatar.innerHTML = `${currentProfile.username.charAt(0).toUpperCase()}<div class="status-dot status-online"></div>`;
+                els.myAvatar.textContent = currentProfile.username.charAt(0).toUpperCase();
             }
             
             showMainApp();
@@ -1762,125 +1506,6 @@
             if(error) alert("Ошибка: " + error.message); else { alert("Сохранено!"); currentProfile[field]=value; updateUI(); closeEditModal(); }
         }
         async function handleLogout() { await supabaseClient.auth.signOut(); location.reload(); }
-
-        // ==========================================
-        // STORIES LOGIC
-        // ==========================================
-        async function fetchStories() {
-            if(!currentUser) return;
-            // Assuming a table 'stories' exists with columns: id, user_id, image_url, text_content, created_at
-            const { data, error } = await supabaseClient
-                .from('stories')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(20); // Last 20 stories globally or filtered by friends later
-            
-            if(data) {
-                storiesCache = data;
-                renderStories();
-            }
-        }
-
-        function renderStories() {
-            // Keep the Add button
-            const addBtn = els.storiesContainer.querySelector('.story-add-btn');
-            els.storiesContainer.innerHTML = '';
-            if(addBtn) els.storiesContainer.appendChild(addBtn);
-
-            storiesCache.forEach(story => {
-                const circle = document.createElement('div');
-                circle.className = 'story-circle';
-                circle.onclick = () => viewStory(story);
-                
-                const ring = document.createElement('div');
-                ring.className = 'story-ring viewed'; // Simplified: assume viewed for demo
-                
-                const avatar = document.createElement('img');
-                avatar.className = 'story-avatar';
-                // Fetch user profile for avatar logic would go here, using cache or dummy for now
-                avatar.src = story.image_url || ''; 
-                if(!story.image_url) {
-                     avatar.alt = '@user';
-                     avatar.style.display = 'none';
-                     // Fallback text avatar could be added
-                }
-
-                circle.appendChild(ring);
-                circle.appendChild(avatar);
-                els.storiesContainer.insertBefore(circle, addBtn);
-            });
-        }
-
-        function openStoryCreator() {
-            els.storyCreatorModal.classList.add('active');
-        }
-        function closeStoryCreator() {
-            els.storyCreatorModal.classList.remove('active');
-        }
-
-        async function publishStory() {
-            const fileInput = document.getElementById('story-file');
-            const textInput = document.getElementById('story-text');
-            const file = fileInput.files[0];
-            const text = textInput.value.trim();
-
-            if(!file && !text) return alert("Добавьте фото или текст");
-
-            let imageUrl = null;
-            if(file) {
-                const fileName = `${currentUser.id}/story_${Date.now()}.jpg`;
-                const { data, error } = await supabaseClient.storage.from('xmedia').upload(fileName, file);
-                if(error) return alert("Ошибка загрузки фото");
-                const { data: urlData } = supabaseClient.storage.from('xmedia').getPublicUrl(fileName);
-                imageUrl = urlData.publicUrl;
-            }
-
-            const { error } = await supabaseClient.from('stories').insert([{
-                user_id: currentUser.id,
-                image_url: imageUrl,
-                text_content: text,
-                created_at: new Date().toISOString()
-            }]);
-
-            if(error) alert("Ошибка публикации истории");
-            else {
-                alert("История опубликована!");
-                closeStoryCreator();
-                fetchStories();
-            }
-        }
-
-        let storyTimer = null;
-        function viewStory(story) {
-            els.storyViewerModal.classList.add('active');
-            els.storyImage.src = story.image_url || '';
-            els.storyImage.style.display = story.image_url ? 'block' : 'none';
-            
-            if(story.text_content) {
-                els.storyTextOverlay.textContent = story.text_content;
-                els.storyTextOverlay.classList.remove('hidden');
-            } else {
-                els.storyTextOverlay.classList.add('hidden');
-            }
-
-            // Progress bar animation
-            els.storyProgressFill.style.width = '0%';
-            els.storyProgressFill.style.transition = 'none';
-            setTimeout(() => {
-                els.storyProgressFill.style.transition = 'width 5s linear';
-                els.storyProgressFill.style.width = '100%';
-            }, 10);
-
-            clearTimeout(storyTimer);
-            storyTimer = setTimeout(() => {
-                closeStoryViewer();
-            }, 5000);
-        }
-
-        function closeStoryViewer() {
-            els.storyViewerModal.classList.remove('active');
-            clearTimeout(storyTimer);
-        }
 
         // ==========================================
         // CHAT LIST LOGIC
@@ -2013,27 +1638,21 @@
 
         function escapeHtml(text) { if(!text) return ""; const map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}; return String(text).replace(/[&<>"']/g,m=>map[m]); }
 
-        // Search & Contacts & Groups
+        // Search & Contacts
         async function performSearch() {
             const query = els.searchInput.value.trim().toLowerCase();
             if(!query) return;
             els.resultsList.innerHTML = '<div class="no-results">Поиск...</div>';
             els.searchModal.classList.add('active');
             const cleanQuery = query.startsWith('@') ? query.substring(1) : query;
-            
-            // Search Users
-            const { data: users, error: uErr } = await supabaseClient.from('profiles').select('id, username, avatar_url').ilike('username', `%${cleanQuery}%`).neq('id', currentUser.id).limit(5);
-            
-            // Search Public Chans/Groups
-            const { data: groups, error: gErr } = await supabaseClient.from('chats').select('id, name, type, channel_username').or(`name.ilike.%${cleanQuery}%,channel_username.ilike.%${cleanQuery}%`).eq('is_public', true).limit(5);
-
-            els.resultsList.innerHTML = '';
-            
+            const { data: users, error } = await supabaseClient.from('profiles').select('id, username, avatar_url').ilike('username', `%${cleanQuery}%`).neq('id', currentUser.id).limit(10);
+            if (error) { els.resultsList.innerHTML = `<div class="no-results" style="color:red">Ошибка</div>`; return; }
             if(users && users.length > 0) {
+                els.resultsList.innerHTML = '';
                 users.forEach(user => {
                     const item = document.createElement('div');
                     item.className = 'result-item';
-                    item.style.cssText = "padding:10px; border-bottom:1px solid var(--border-color); cursor:pointer; display:flex; align-items:center; justify-content:space-between;";
+                    item.style.cssText = "padding:10px; border-bottom:1px solid var(--border-color); cursor:pointer; display:flex; align-items:center; gap:10px;";
                     item.onclick = () => startNewChat(user);
                     
                     let av = user.avatar_url ? `<img src="${user.avatar_url}" style="width:24px;height:24px;border-radius:50%;object-fit:cover;">` : `<div class="avatar" style="width:24px;height:24px;font-size:10px;">${user.username.charAt(0).toUpperCase()}</div>`;
@@ -2041,51 +1660,10 @@
                     item.innerHTML = `${av}<div class="result-info"><div class="result-name">@${user.username}</div></div>`;
                     els.resultsList.appendChild(item);
                 });
-            }
-
-            if(groups && groups.length > 0) {
-                groups.forEach(group => {
-                    const item = document.createElement('div');
-                    item.className = 'result-item';
-                    item.style.cssText = "padding:10px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between;";
-                    
-                    let icon = group.type === 'channel' ? '<i data-feather="rss" width="16"></i>' : '<i data-feather="users" width="16"></i>';
-                    
-                    item.innerHTML = `
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            ${icon}
-                            <span>${escapeHtml(group.name)} (${group.type})</span>
-                        </div>
-                        <button class="join-btn-search" onclick="joinGroup('${group.id}', this)">Присоединиться</button>
-                    `;
-                    els.resultsList.appendChild(item);
-                });
-                feather.replace(); // Render icons in dynamic list
-            }
-
-            if((!users || users.length===0) && (!groups || groups.length===0)) {
-                 els.resultsList.innerHTML = '<div class="no-results">Никого не нашли :(</div>';
-            }
+            } else { els.resultsList.innerHTML = '<div class="no-results">Никого не нашли :(</div>'; }
         }
         function closeModal() { els.searchModal.classList.remove('active'); }
         els.searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(); });
-
-        async function joinGroup(chatId, btnElement) {
-            // Insert into chat_members
-            const { error } = await supabaseClient.from('chat_members').insert([{
-                chat_id: chatId,
-                user_id: currentUser.id,
-                role: 'member'
-            }]);
-
-            if(error) alert("Ошибка присоединения: " + error.message);
-            else {
-                btnElement.textContent = "Вы состоите";
-                btnElement.classList.add('joined');
-                btnElement.disabled = true;
-                fetchChats(); // Refresh list
-            }
-        }
 
         async function startNewChat(profileData) {
             closeModal(); 
@@ -2226,8 +1804,7 @@
                 type: wizardState.type,
                 name: wizardState.name,
                 owner_id: currentUser.id,
-                participants: [currentUser.id],
-                is_public: wizardState.isPublic || false
+                participants: [currentUser.id] 
             };
 
             if (wizardState.type === 'channel' && wizardState.isPublic) {
@@ -2271,9 +1848,9 @@
             
             // Update Partner Avatar
             if (chat.partnerAvatarUrl) {
-                 els.partnerAvatar.innerHTML = `<img src="${chat.partnerAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"><div class="status-dot status-online" id="partner-status-dot"></div>`;
+                 els.partnerAvatar.innerHTML = `<img src="${chat.partnerAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
             } else {
-                 els.partnerAvatar.innerHTML = `${chat.displayName.charAt(0).toUpperCase()}<div class="status-dot status-online" id="partner-status-dot"></div>`;
+                 els.partnerAvatar.textContent = chat.displayName.charAt(0).toUpperCase();
             }
             
             // Determine My Role
@@ -2376,7 +1953,7 @@
             wrapper.className = `message-wrapper ${isMine ? 'sent' : 'received'}`;
             wrapper.setAttribute('data-real-id', msg.id);
             wrapper.setAttribute('data-sender-id', msg.sender_id);
-            wrapper.setAttribute('data-content', msg.content); 
+            wrapper.setAttribute('data-content', msg.content); // Store raw content for reply logic
             
             // Bubble Div
             const bubble = document.createElement('div');
@@ -2387,10 +1964,12 @@
             
             // Add Reply Quote if applicable
             if (msg.reply_to_id) {
+                // Find original message in cache to get its preview
                 const originalMsg = messageCache[msg.chat_id].find(m => m.id === msg.reply_to_id);
                 if (originalMsg) {
                     const quoteDiv = document.createElement('div');
                     quoteDiv.className = 'reply-quote';
+                    // Simple truncation for preview
                     let previewText = originalMsg.content;
                     try {
                         const parsed = JSON.parse(originalMsg.content);
@@ -2401,6 +1980,7 @@
                         <span class="reply-author">@${getUserName(originalMsg.sender_id)}</span>
                         <span class="reply-text">${escapeHtml(previewText.substring(0, 50))}${previewText.length > 50 ? '...' : ''}</span>
                     `;
+                    // Clicking quote scrolls to original
                     quoteDiv.onclick = () => {
                         const origEl = document.querySelector(`.message-wrapper[data-real-id="${originalMsg.id}"]`);
                         if(origEl) origEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2410,22 +1990,6 @@
             }
 
             wrapper.appendChild(bubble);
-
-            // Reactions Display
-            if (msg.reactions && Object.keys(msg.reactions).length > 0) {
-                const reactRow = document.createElement('div');
-                reactRow.className = 'reactions-display';
-                for(const emoji in msg.reactions) {
-                    const count = msg.reactions[emoji];
-                    const chip = document.createElement('div');
-                    chip.className = 'reaction-chip';
-                    // Check if I reacted
-                    // Note: In a real app, store who reacted. Here simplified.
-                    chip.innerHTML = `${emoji} ${count}`;
-                    reactRow.appendChild(chip);
-                }
-                wrapper.appendChild(reactRow);
-            }
 
             // Options Trigger (Three Dots)
             const trigger = document.createElement('div');
@@ -2442,7 +2006,7 @@
             wrapper.addEventListener('touchstart', (e) => {
                 pressTimer = setTimeout(() => {
                     toggleContextMenu(wrapper, msg);
-                }, 500); 
+                }, 500); // 500ms hold
             }, { passive: true });
 
             wrapper.addEventListener('touchend', () => clearTimeout(pressTimer));
@@ -2450,13 +2014,14 @@
 
             els.messagesContainer.appendChild(wrapper);
             scrollToBottom();
-            feather.replace(); 
+            feather.replace(); // Re-render icons for new elements
         }
 
         function getUserName(userId) {
             if (userId === currentUser.id) return "Вы";
             const cached = profileCache[userId];
             if (cached) return cached.username;
+            // Fallback lookup could go here, but for now generic
             return "Пользователь";
         }
 
@@ -2503,25 +2068,23 @@
             
             els.messageInput.value = '';
 
+            // Prepare payload
             const payload = { 
                 chat_id: activeChatId, 
                 sender_id: currentUser.id, 
                 content: text 
             };
 
+            // Attach reply if exists
             if (replyingToMessage) {
                 payload.reply_to_id = replyingToMessage.id;
-                cancelReply(); 
+                cancelReply(); // Clear state after sending
             }
 
             try {
                 const { error } = await supabaseClient.from('messages').insert([payload]);
 
                 if(error) throw error;
-                
-                // BOT LOGIC TRIGGER
-                checkBotRules(activeChatId, text);
-
             } catch (err) {
                 alert("Ошибка отправки");
                 els.messageInput.value = text;
@@ -2530,45 +2093,31 @@
 
         els.messageInput.addEventListener('keydown', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 
-        // Simple Bot Logic (Client-side simulation for Demo)
-        // Ideally this runs in Edge Functions, but for simple MVP:
-        async function checkBotRules(chatId, userMessage) {
-            // Assume there's a 'bots' table or config in chat metadata
-            // For this demo, we'll hardcode a rule: If message contains "hello bot", reply "Hi!"
-            if(userMessage.toLowerCase().includes("hello bot")) {
-                setTimeout(async () => {
-                    const botPayload = {
-                        chat_id: chatId,
-                        sender_id: 'BOT_ID_PLACEHOLDER', // Needs a real ID or system account
-                        content: "Привет! Я бот Xsocial."
-                    };
-                    // In production, use an RPC or Edge Function to insert as bot
-                    // await supabaseClient.rpc('send_bot_message', botPayload);
-                    console.log("Bot triggered:", botPayload);
-                    // Simulate insertion locally for visual feedback if no backend bot yet
-                    // appendMessageToDOM({...botPayload, id: Date.now(), reactions: {}});
-                }, 1000);
-            }
-        }
-
         // ==========================================
-        // CONTEXT MENU & REACTIONS
+        // CONTEXT MENU & REPLY LOGIC
         // ==========================================
         
         let currentContextMenu = null;
 
         function toggleContextMenu(wrapperEl, msgData) {
+            // Close any existing menu
             if (currentContextMenu) {
                 currentContextMenu.remove();
                 currentContextMenu = null;
             }
 
+            // If clicking same wrapper again, do nothing (already closed above)
+            // But we need to check if we clicked outside to close. Handled below globally.
+
             const menu = document.createElement('div');
             menu.className = 'context-menu show';
             
+            // Positioning
             const rect = wrapperEl.getBoundingClientRect();
+            // Try to place near the trigger dot
             const isSent = wrapperEl.classList.contains('sent');
             
+            // Basic positioning logic
             menu.style.top = (rect.bottom + window.scrollY) + 'px';
             if (isSent) {
                 menu.style.right = (window.innerWidth - rect.left) + 'px';
@@ -2576,23 +2125,7 @@
                 menu.style.left = rect.left + 'px';
             }
 
-            // QUICK REACTIONS ROW
-            const reactionRow = document.createElement('div');
-            reactionRow.className = 'quick-reactions-row';
-            const emojis = ['👍', '❤️', '😂', '😮', '😢', '🔥'];
-            emojis.forEach(em => {
-                const span = document.createElement('span');
-                span.className = 'qr-emoji';
-                span.textContent = em;
-                span.onclick = () => {
-                    addReaction(msgData.id, em);
-                    menu.remove();
-                    currentContextMenu = null;
-                };
-                reactionRow.appendChild(span);
-            });
-            menu.appendChild(reactionRow);
-
+            // Items
             const replyItem = document.createElement('div');
             replyItem.className = 'ctx-item';
             replyItem.innerHTML = '<i data-feather="corner-up-left" width="16"></i> Ответить';
@@ -2603,6 +2136,7 @@
             };
             menu.appendChild(replyItem);
 
+            // Delete Item (Only if owner/admin OR self)
             const canDelete = (msgData.sender_id === currentUser.id) || (myRoleInActiveChat === 'owner' || myRoleInActiveChat === 'admin');
             if (canDelete) {
                 const delItem = document.createElement('div');
@@ -2618,9 +2152,10 @@
 
             document.body.appendChild(menu);
             currentContextMenu = menu;
-            feather.replace(); 
+            feather.replace(); // Ensure icons render in menu
         }
 
+        // Global click listener to close context menu
         document.addEventListener('click', (e) => {
             if (currentContextMenu && !currentContextMenu.contains(e.target) && !e.target.closest('.msg-options-trigger')) {
                 currentContextMenu.remove();
@@ -2628,29 +2163,11 @@
             }
         });
 
-        async function addReaction(messageId, emoji) {
-            // Fetch current message to get existing reactions
-            const { data: msg } = await supabaseClient.from('messages').select('reactions').eq('id', messageId).single();
-            let reactions = msg.reactions || {};
-            
-            // Toggle logic: if already has this emoji from me, remove? 
-            // Simplified: Just increment count. Real app needs user tracking per reaction.
-            reactions[emoji] = (reactions[emoji] || 0) + 1;
-
-            await supabaseClient.from('messages').update({ reactions: reactions }).eq('id', messageId);
-            
-            // Update local cache and re-render
-            const idx = messageCache[activeChatId].findIndex(m => m.id === messageId);
-            if(idx !== -1) {
-                messageCache[activeChatId][idx].reactions = reactions;
-                renderCachedMessages(activeChatId);
-            }
-        }
-
         function startReply(msgData) {
             replyingToMessage = msgData;
             els.replyBar.classList.remove('hidden');
             
+            // Generate Preview Text
             let preview = msgData.content;
             try {
                 const parsed = JSON.parse(msgData.content);
@@ -2678,6 +2195,7 @@
             if (error) {
                 alert("Ошибка удаления: " + error.message);
             } else {
+                // Remove from local cache and DOM
                 const idx = messageCache[activeChatId]?.findIndex(m => m.id === messageId);
                 if(idx !== -1) messageCache[activeChatId].splice(idx, 1);
                 
@@ -2994,6 +2512,7 @@
            const el = document.querySelector(`.message-wrapper[data-real-id="${messageId}"]`);
            if(el) el.remove();
            
+           // Also remove from cache
            if(messageCache[activeChatId]) {
                const idx = messageCache[activeChatId].findIndex(m => m.id === messageId);
                if(idx !== -1) messageCache[activeChatId].splice(idx, 1);
@@ -3070,6 +2589,7 @@
         // TOAST NOTIFICATION AUTO-HIDE LOGIC
         // ==========================================
         function showToast(email) {
+            // Remove existing toast if any
             const existingToast = document.querySelector('.toast-notification');
             if (existingToast) existingToast.remove();
 
@@ -3081,6 +2601,7 @@
             `;
             document.body.appendChild(toast);
 
+            // Auto hide after 5 seconds
             setTimeout(() => {
                 toast.style.animation = 'fadeOut 0.5s ease forwards';
                 setTimeout(() => toast.remove(), 500);
@@ -3088,10 +2609,12 @@
         }
 
         function hideToastAfterDelay() {
+             // Called when app initializes to ensure no lingering toasts
              const toast = document.querySelector('.toast-notification');
              if(toast) toast.remove();
         }
 
+        // Override updateUI to trigger toast
         const originalUpdateUI = updateUI;
         updateUI = function() {
             originalUpdateUI();
@@ -3099,6 +2622,13 @@
                 showToast("@" + currentProfile.username); 
             }
         };
+function startXcortexLogin() {
+    // Ссылка на твою страницу авторизации из Шага 2
+    const authPageUrl = 'https://artem-2436.github.io/XcortexID/index.html?';
+    
+    // Переходим на нее
+    window.location.href = authPageUrl;
+}
     </script>
     <script src="./script.js"></script>
     <script>
